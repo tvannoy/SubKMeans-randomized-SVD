@@ -1,6 +1,7 @@
 import numpy as np 
 import utils 
 from collections import defaultdict
+from sklearn.metrics import normalized_mutual_info_score
 
 
 class SubKmeans(object):
@@ -23,6 +24,30 @@ class SubKmeans(object):
         # Initial cluster centroids are chosen using random data points
         init_centroid_idx = np.random.choice(len(data), k, replace=False)
         self.centroids = self.data[init_centroid_idx, :]
+
+    def run(self, max_iter=200):
+        self._find_cluster_assignment()
+        self._update_centroids()
+        self._update_transformation()
+
+        n = 0
+        nmi = 0
+        while (n < max_iter and nmi < 0.9):
+            prev_assignments = self.assignments
+            # get previous labels
+            prev_labels = []
+            for k, v in prev_assignments.items():
+                prev_labels += list(k * np.ones(len(v)))
+
+            self._find_cluster_assignment()
+            self._update_centroids()
+            self._update_transformation()
+
+            cur_labels = []
+            for k,v in self.assignments.items():
+                cur_labels += list(k * np.ones(len(v)))
+
+            nmi = normalized_mutual_info_score(prev_labels, cur_labels)
 
     def _update_centroids(self):
         for k, v in self.assignments.items():
