@@ -29,6 +29,9 @@ class SubKmeans(object):
         self._find_cluster_assignment()
         self._update_centroids()
         self._update_transformation()
+        # print(self.assignments)
+        # print(self.centroids)
+        # print()
 
         n = 0
         nmi = 0
@@ -42,12 +45,16 @@ class SubKmeans(object):
             self._find_cluster_assignment()
             self._update_centroids()
             self._update_transformation()
+            # print(self.assignments)
+            # print(self.centroids)
+            # print()
 
             cur_labels = []
             for k,v in self.assignments.items():
                 cur_labels += list(k * np.ones(len(v)))
 
             nmi = normalized_mutual_info_score(prev_labels, cur_labels)
+            n += 1
 
     def _update_centroids(self):
         for k, v in self.assignments.items():
@@ -73,6 +80,10 @@ class SubKmeans(object):
         for i in range(len(self.data)):
             dist = np.linalg.norm(mapped_centroids - mapped_data[i, :], axis=1)
             cluster_assignment = np.argmin(dist) 
+            print(self.data[i,:])
+            print(dist)
+            print(cluster_assignment)
+            print()
             self.assignments[cluster_assignment].append(self.data[i,:])
 
 
