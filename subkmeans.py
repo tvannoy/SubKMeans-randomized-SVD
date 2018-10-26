@@ -13,7 +13,7 @@ class SubKmeans(object):
         self.data_mean = np.mean(data, axis=0)
 
         # computer scatter matrix S_D
-        self.s_d = self.calculate_scatter(self.data, self.data_mean) 
+        self.s_d = utils.calculate_scatter(self.data, self.data_mean) 
 
         # track cluster assignments with dict. cluster num is key
         self.assignments = dict.fromkeys(np.arange(k), [])
@@ -22,15 +22,6 @@ class SubKmeans(object):
         # Initial cluster centroids are chosen using random data points
         init_centroid_idx = np.random.choice(len(data), k, replace=False)
         self.centroids = self.data[init_centroid_idx, :]
-
-
-    def calculate_scatter(self, data, mean):
-        s = np.zeros((data.shape[1], data.shape[1]))
-
-        for i in range(len(data)):
-            s += (data[i, :] - mean) @ (data[i, :] - mean).T 
-
-        return s 
 
     def _update_centroids(self):
         for k, v in self.assignments.items():
@@ -60,19 +51,20 @@ class SubKmeans(object):
 
 
     def _update_transformation(self):
+        # compute scatter matrix
         s_i = np.zeros((self.data.shape[1], self.data.shape[1]))
         for k,v in self.assignments.items():
             for i in v:
                 s_i += (i - self.centroids[k, :]) @ (i - self.centroids[k, :]).T
         
+        V, eigen_values, eigen_vectors = utils.eigen_decomp(s_i, self.s_d)
+        self.transform = V 
 
-        
+        self._get_M(eigen_values)
 
-    def _get_M(self):
-        pass 
+    def _get_M(self, eigen_values):
+        self.m = len([i for i in eigen_values if i < -1e-10])
 
-    def _get_costs(self): 
-        pass 
 
     
     
