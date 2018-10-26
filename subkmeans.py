@@ -1,5 +1,6 @@
 import numpy as np 
 import utils 
+from collections import defaultdict
 
 
 class SubKmeans(object):
@@ -16,7 +17,7 @@ class SubKmeans(object):
         self.s_d = utils.calculate_scatter(self.data, self.data_mean) 
 
         # track cluster assignments with dict. cluster num is key
-        self.assignments = dict.fromkeys(np.arange(k), [])
+        self.assignments = defaultdict(list)
 
         # randomly assign points to clusters initially. 
         # Initial cluster centroids are chosen using random data points
@@ -31,7 +32,7 @@ class SubKmeans(object):
 
     def _find_cluster_assignment(self):
         # re initialize clusters, as we are creating new assignments
-        self.assignments = dict.fromkeys(np.arange(self.k), [])
+        self.assignments = defaultdict(list)
 
         # calculate the cluster space mapping 
         pc = utils.calc_pc(self.data.shape[1], self.m)    # calc the projection matrix
@@ -57,6 +58,7 @@ class SubKmeans(object):
             for i in v:
                 s_i += (i - self.centroids[k, :]) @ (i - self.centroids[k, :]).T
         
+        # where we sub in randomized svd 
         V, eigen_values, eigen_vectors = utils.eigen_decomp(s_i, self.s_d)
         self.transform = V 
 
