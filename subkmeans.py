@@ -43,7 +43,7 @@ class SubKmeans(object):
 
         # compute distances to centroids 
         for i in range(len(self.data)):
-            dist = np.linalg.norm(mapped_centroids - mapped_data[i, :])
+            dist = np.linalg.norm(mapped_centroids - mapped_data[i, :], axis=1)
             cluster_assignment = np.argmin(dist) 
             self.assignments[cluster_assignment].append(self.data[i,:])
 
