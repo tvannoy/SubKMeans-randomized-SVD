@@ -13,7 +13,7 @@ class SubKmeans(object):
         self.data_mean = np.mean(data, axis=0)
 
         # computer scatter matrix S_D
-        self.s_d = (self.data - self.data_mean) @ (self.data - self.data_mean).T 
+        self.s_d = calculate_scatter(self.data, self.data_mean) 
 
         # track cluster assignments with dict. cluster num is key
         self.assignments = dict.fromkeys(np.arange(k), [])
@@ -24,8 +24,19 @@ class SubKmeans(object):
         self.centroids = self.data[init_centroid_idx, :]
 
 
+    def calculate_scatter(data, mean):
+        s = np.zeros((data.shape[1], data.shape[1]))
+
+        for i in range(len(data)):
+            s += (data[i, :] - mean) @ (data[i, :] - mean).T 
+
+        return s 
+
     def _update_centroids(self):
-        pass 
+        for k, v in self.assignments.items():
+            pts = np.vstack(v)
+            centroid = np.mean(pts, axis=0)
+            self.centroids[k,:] = centroid
 
     def _find_cluster_assignment(self):
         # re initialize clusters, as we are creating new assignments
@@ -49,7 +60,13 @@ class SubKmeans(object):
 
 
     def _update_transformation(self):
-        pass 
+        s_i = np.zeros((self.data.shape[1], self.data.shape[1]))
+        for k,v in self.assignments.items():
+            for i in v:
+                s_i += (i - self.centroids[k, :]) @ (i - self.centroids[k, :]).T
+        
+
+        
 
     def _get_M(self):
         pass 
