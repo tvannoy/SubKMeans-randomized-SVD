@@ -10,7 +10,7 @@ class SubKmeans(object):
         self.data = data 
         self.m = int(np.sqrt(data.shape[1]))                 # cluster space dims
         self.transform = utils.init_transform(data.shape[1]) # init transformation matrix
-
+        self.pc = []                                         # projection matrix
         # compute dataset mean -> used in scatter matrix
         self.data_mean = np.mean(data, axis=0)
 
@@ -61,8 +61,8 @@ class SubKmeans(object):
         self.assignments = defaultdict(list)
 
         # calculate the cluster space mapping 
-        pc = utils.calc_pc(self.data.shape[1], self.m)    # calc the projection matrix
-        cluster_space_mapping = pc.T @ self.transform.T   # calc the cluster space mapping
+        self.pc = utils.calc_pc(self.data.shape[1], self.m)    # calc the projection matrix
+        cluster_space_mapping = self.pc.T @ self.transform.T   # calc the cluster space mapping
 
         # map data to cluster space
         mapped_data = (cluster_space_mapping @ self.data.T).T # (i by m) i being the datapoints
