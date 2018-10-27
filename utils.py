@@ -16,20 +16,21 @@ def init_transform(dim):
     return V
 
 # calculate the scatter matrix for the full dataset 
-def calculate_scatter(data, mean):
-    s = np.zeros((data.shape[1], data.shape[1]))
+def calculate_scatter(data):
+    d = len(data)
+    if d == 0:
+        return [0]
+    c = np.eye(d) - np.multiply(1/d, np.ones((d,d)))
+    s_d = data.T @ c 
+    s_d = s_d @ data 
+    # s = np.zeros((data.shape[1], data.shape[1]))
 
-    for i in range(len(data)):
-        s += (data[i, :] - mean) @ (data[i, :] - mean).T 
+    # for i in range(len(data)):
+    #     s += (data[i, :] - mean) @ (data[i, :] - mean).T 
 
-    return s 
+    return s_d 
 
 def eigen_decomp(s_i, s_d):
     # eigendecomposition -> this is where we will sub in randomized svd
     w, v = np.linalg.eig(s_i - s_d)
-
-    # sort eigenvalues in ascending order
-    sorted_v = [x for _,x in sorted(zip(w,v))]
-
-    # create new transformation matrix
-    return (np.vstack(sorted_v).T, w, v)
+    return w, v 

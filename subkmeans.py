@@ -15,7 +15,7 @@ class SubKmeans(object):
         self.data_mean = np.mean(data, axis=0)
 
         # computer scatter matrix S_D
-        self.s_d = utils.calculate_scatter(self.data, self.data_mean) 
+        self.s_d = utils.calculate_scatter(self.data) 
 
         # track cluster assignments with dict. cluster num is key
         self.assignments = defaultdict(list)
@@ -29,9 +29,6 @@ class SubKmeans(object):
         self._find_cluster_assignment()
         self._update_centroids()
         self._update_transformation()
-        # print(self.assignments)
-        # print(self.centroids)
-        # print()
 
         n = 0
         nmi = 0
@@ -45,9 +42,6 @@ class SubKmeans(object):
             self._find_cluster_assignment()
             self._update_centroids()
             self._update_transformation()
-            # print(self.assignments)
-            # print(self.centroids)
-            # print()
 
             cur_labels = []
             for k,v in self.assignments.items():
@@ -80,24 +74,17 @@ class SubKmeans(object):
         for i in range(len(self.data)):
             dist = np.linalg.norm(mapped_centroids - mapped_data[i, :], axis=1)
             cluster_assignment = np.argmin(dist) 
-            print(self.data[i,:])
-            print(dist)
-            print(cluster_assignment)
-            print()
             self.assignments[cluster_assignment].append(self.data[i,:])
 
 
     def _update_transformation(self):
         # compute scatter matrix
         s_i = np.zeros((self.data.shape[1], self.data.shape[1]))
-        for k,v in self.assignments.items():
-            for i in v:
-                s_i += (i - self.centroids[k, :]) @ (i - self.centroids[k, :]).T
+        for i in range(self.k):
+            s_i += (utils.calculate_scatter(np.array(self.assignments[i])))
         
         # where we sub in randomized svd 
-        V, eigen_values, eigen_vectors = utils.eigen_decomp(s_i, self.s_d)
-        self.transform = V 
-
+        eigen_values, self.transform = utils.eigen_decomp(s_i, self.s_d)
         self._get_M(eigen_values)
 
     def _get_M(self, eigen_values):
