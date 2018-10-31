@@ -37,11 +37,12 @@ def sorted_eig(s, randomized=False):
     # eigendecomposition -> this is where we will sub in randomized svd
     if randomized:
         k = len(s)
-        e_vecs, e_vals, Va = fbpca.pca(s, raw=True, k=k)
+        e_vals, e_vecs = fbpca.eigens(s, k=k)
     else:
         e_vals, e_vecs = np.linalg.eig(s)
 
-    # idx = np.argsort(e_vals)
-    # e_vecs = e_vecs[:,idx]
-    # e_vals = e_vals[idx]
+    # sort in ascending order
+    idx = np.argsort(e_vals)
+    e_vecs = e_vecs[:,idx]
+    e_vals = e_vals[idx]
     return e_vals, e_vecs
