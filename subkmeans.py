@@ -31,14 +31,14 @@ class SubKmeans(object):
         init_centroid_idx = np.random.choice(len(data), k, replace=False)
         self.centroids = self.data[init_centroid_idx, :]
 
-    def run(self, max_iter=1000, randomized=False):
+    def run(self, max_iter=1000, randomized=False, tol=0.99):
         self._find_cluster_assignment()
         self._update_centroids()
         self._update_transformation()
 
         n = 0
         nmi = 0
-        while (n < max_iter and nmi < 0.9):
+        while (n < max_iter and nmi < tol):
             prev_assignments = self.assignments
             # get previous labels
             prev_labels = []
@@ -55,7 +55,7 @@ class SubKmeans(object):
 
             nmi = normalized_mutual_info_score(prev_labels, cur_labels)
             n += 1
-            if nmi > 0.9:
+            if nmi > tol:
                 print(nmi)
                 print(n)
 
