@@ -2,6 +2,7 @@ import numpy as np
 import utils
 from collections import defaultdict
 from sklearn.metrics import normalized_mutual_info_score
+import os 
 
 
 class SubKmeans(object):
@@ -58,6 +59,16 @@ class SubKmeans(object):
             if nmi > tol:
                 print(nmi)
                 print(n)
+
+        # save the cluster assignments
+        if not os.path.isdir("Cur_Run"):
+            os.mkdir("Cur_Run")
+
+        utils.pickle_it(self.assignments, "Cur_Run/assignments.p")
+        utils.pickle_it(self.transform, "Cur_Run/transform.p")
+        utils.pickle_it(self.pc, "Cur_Run/pc.p")
+        print("Cluster space dims: {}".format(self.m))
+
 
     def _update_centroids(self):
         for k, v in self.assignments.items():

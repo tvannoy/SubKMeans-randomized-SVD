@@ -1,5 +1,6 @@
 import numpy as np
 import fbpca
+import pickle 
 
 # calculate the pc projection matrix
 def calc_pc(dim, m):
@@ -46,3 +47,7 @@ def sorted_eig(s, randomized=False):
     e_vecs = e_vecs[:,idx]
     e_vals = e_vals[idx]
     return e_vals, e_vecs
+
+def pickle_it(obj, filename):
+    with open(filename, 'wb') as f:
+        pickle.dump(obj, f, protocol=pickle.HIGHEST_PROTOCOL)
