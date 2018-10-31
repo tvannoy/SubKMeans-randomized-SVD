@@ -1,4 +1,5 @@
 import numpy as np
+import fbpca
 
 # calculate the pc projection matrix
 def calc_pc(dim, m):
@@ -30,14 +31,17 @@ def calculate_scatter(data):
     c = np.eye(d) - np.multiply(1/d, np.ones((d,d)))
     s_d = data.T @ c
     s_d = s_d @ data
-    # s = np.zeros((data.shape[1], data.shape[1]))
-
-    # for i in range(len(data)):
-    #     s += (data[i, :] - mean) @ (data[i, :] - mean).T
-
     return s_d
 
-def eigen_decomp(s_i, s_d):
+def sorted_eig(s, randomized=False):
     # eigendecomposition -> this is where we will sub in randomized svd
-    w, v = np.linalg.eig(s_i - s_d)
-    return w, v
+    if randomized:
+        k = len(s)
+        e_vecs, e_vals, Va = fbpca.pca(s, raw=True, k=k)
+    else:
+        e_vals, e_vecs = np.linalg.eig(s)
+
+    # idx = np.argsort(e_vals)
+    # e_vecs = e_vecs[:,idx]
+    # e_vals = e_vals[idx]
+    return e_vals, e_vecs

@@ -31,7 +31,7 @@ class SubKmeans(object):
         init_centroid_idx = np.random.choice(len(data), k, replace=False)
         self.centroids = self.data[init_centroid_idx, :]
 
-    def run(self, max_iter=1000):
+    def run(self, max_iter=1000, randomized=False):
         self._find_cluster_assignment()
         self._update_centroids()
         self._update_transformation()
@@ -47,7 +47,7 @@ class SubKmeans(object):
 
             self._find_cluster_assignment()
             self._update_centroids()
-            self._update_transformation()
+            self._update_transformation(randomized=randomized)
 
             cur_labels = []
             for k,v in self.assignments.items():
@@ -57,9 +57,7 @@ class SubKmeans(object):
             n += 1
             if nmi > 0.9:
                 print(nmi)
-                print(max_iter)
-        print(nmi)
-        print(max_iter)
+                print(n)
 
     def _update_centroids(self):
         for k, v in self.assignments.items():
@@ -98,15 +96,15 @@ class SubKmeans(object):
             self.cluster_space_assignments[cluster_assignment].append(mapped_data[i,:])
             self.noise_space_assignments[cluster_assignment].append(noise_data[i,:])
 
-    def _update_transformation(self):
+    def _update_transformation(self, randomized=False):
         # compute scatter matrix
         s_i = np.zeros((self.data.shape[1], self.data.shape[1]))
         for i in range(self.k):
             s_i += (utils.calculate_scatter(np.array(self.assignments[i])))
 
         # where we sub in randomized svd
-        eigen_values, self.transform = utils.eigen_decomp(s_i, self.s_d)
+        eigen_values, self.transform = utils.sorted_eig(s_i - self.s_d, randomized=randomized)
         self._get_M(eigen_values)
 
     def _get_M(self, eigen_values):
-        self.m = len([i for i in eigen_values if i < -1e-10])
+        self.m = max(1, len([i for i in eigen_values if i < -1e-10]))
