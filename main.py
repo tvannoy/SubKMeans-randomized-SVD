@@ -4,7 +4,7 @@ import pickle
 import time 
 
 if __name__ == "__main__":
-    with open("data/postures.p", 'rb') as f:
+    with open("data/ecoli.p", 'rb') as f:
         data = pickle.load(f)
 
     X = preprocessing.scale(data)
