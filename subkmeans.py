@@ -3,6 +3,7 @@ import utils
 from collections import defaultdict
 from sklearn.metrics import normalized_mutual_info_score
 import os 
+import time 
 
 
 class SubKmeans(object):
@@ -33,9 +34,20 @@ class SubKmeans(object):
         self.centroids = self.data[init_centroid_idx, :]
 
     def run(self, max_iter=1000, randomized=False, tol=0.99):
+        t0 = time.time()
         self._find_cluster_assignment()
+        t1 = time.time()
+        print("find cluster assignment: {}".format(t1-t0))
+
+        t0 = time.time()
         self._update_centroids()
+        t1 = time.time()
+        print("update centroids: {}".format(t1-t0))
+
+        t0 = time.time()
         self._update_transformation()
+        t1 = time.time()
+        print("update transformation: {}".format(t1-t0))
 
         n = 0
         nmi = 0
@@ -58,11 +70,11 @@ class SubKmeans(object):
 
             if n % 50 == 0:
                 print("Iteration: {}".format(n))
+                print(nmi)
 
             n += 1
             if nmi > tol:
-                print(nmi)
-                print(n)
+                print(nmi,n)
 
         # save the cluster assignments
         if not os.path.isdir("Cur_Run"):
