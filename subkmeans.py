@@ -108,7 +108,6 @@ class SubKmeans(object):
         #noise_space_mapping = self.pn.T @ self.transform.T
 
         # map data to cluster space
-        print(self.transform.shape)
         mapped_data = (self.transform.T @ self.data.T).T # (i by m) i being the datapoints
 
         # map centroids to cluster space
