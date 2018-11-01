@@ -4,7 +4,7 @@ import pickle
 import time 
 
 if __name__ == "__main__":
-    with open("Data/postures.p", 'rb') as f:
+    with open("data/postures.p", 'rb') as f:
         data = pickle.load(f)
 
     X = preprocessing.scale(data)
@@ -15,3 +15,6 @@ if __name__ == "__main__":
     t1 = time.time()
 
     print("Elapsed Time: {}".format(t1-t0))
+
+    with open("time.txt", 'a') as f:
+        f.write("{},".format(t1-t0))

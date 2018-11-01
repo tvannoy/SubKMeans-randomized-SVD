@@ -55,6 +55,10 @@ class SubKmeans(object):
                 cur_labels += list(k * np.ones(len(v)))
 
             nmi = normalized_mutual_info_score(prev_labels, cur_labels)
+
+            if n % 50 == 0:
+                print("Iteration: {}".format(n))
+
             n += 1
             if nmi > tol:
                 print(nmi)
