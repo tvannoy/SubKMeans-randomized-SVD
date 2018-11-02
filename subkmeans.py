@@ -9,11 +9,11 @@ from numba import jit
 
 class SubKmeans(object):
     def __init__(self, k, data):
-        self.k = k                                           # number of clusters
+        self.k = k                                                      # number of clusters
         self.data = data
-        self.m = int(np.sqrt(data.shape[1]))                 # cluster space dims
-        self.transform = utils.init_transform(self.m, data.shape[1])        # init transformation matrix
-        self.pc = []                                         # projection matrix
+        self.m = int(np.sqrt(data.shape[1]))                            # cluster space dims
+        self.transform = utils.init_transform(self.m, data.shape[1])    # init transformation matrix
+        self.pc = []                                                    # projection matrix
         # compute dataset mean -> used in scatter matrix
         self.data_mean = np.mean(data, axis=0)
 
