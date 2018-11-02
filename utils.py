@@ -8,14 +8,14 @@ def calc_pc(dim, m):
     top = np.eye(m)
     bot = np.zeros((dim-m, m))
     pc = np.vstack((top, bot))
-    return top
+    return pc
 
 # calculate the pn projection matrix
 def calc_pn(dim, m):
     top = np.zeros((m, dim-m))
     bot = np.eye(dim-m)
     pn = np.vstack((top, bot))
-    return top
+    return pn
 
 # initialize the transformation matrix
 def init_transform(m, dim):
@@ -35,13 +35,9 @@ def calculate_scatter(data):
     s_d = s_d @ data
     return s_d
 
-def sorted_eig(s, m, randomized=False):
+def sorted_eig(s, m):
     # eigendecomposition -> this is where we will sub in randomized svd
-    if randomized:
-        # k = len(s)
-        e_vals, e_vecs = fbpca.eigens(s, k=m)
-    else:
-        e_vals, e_vecs = np.linalg.eig(s)
+    e_vals, e_vecs = fbpca.eigens(s, k=m)
 
     # sort in ascending order
     idx = np.argsort(e_vals)
