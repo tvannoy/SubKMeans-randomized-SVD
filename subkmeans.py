@@ -74,8 +74,8 @@ class SubKmeans(object):
         self.noise_space_assignments = defaultdict(list)
 
         # calculate the cluster space mapping
-        self.pc = utils.calc_pc(self.data.shape[1], self.m)    # calc the projection matrix
-        cluster_space_mapping = self.pc.T @ self.transform.T   # calc the cluster space mapping
+        self.pc = utils.calc_pc(self.data.shape[1], self.m)    
+        cluster_space_mapping = self.pc.T @ self.transform.T   
 
         # calculate the noise space mapping
         self.pn = utils.calc_pn(self.data.shape[1], self.m)
@@ -105,7 +105,7 @@ class SubKmeans(object):
             s_i += (utils.calculate_scatter(np.array(self.assignments[i])))
 
         # where we sub in randomized svd
-        eigen_values, self.transform = utils.eigen_decomp(s_i, self.s_d)
+        eigen_values, self.transform = utils.eigen_decomp(s_i - self.s_d)
         self._get_M(eigen_values)
 
     def _get_M(self, eigen_values):
