@@ -1,4 +1,5 @@
 import numpy as np
+import fbpca 
 
 # calculate the pc projection matrix
 def calc_pc(dim, m):
@@ -15,11 +16,14 @@ def calc_pn(dim, m):
     return pn
 
 # initialize the transformation matrix
-def init_transform(dim):
-    V = np.random.rand(dim, dim)
-    # we want V to be orthonormal, so it is initialized with
-    # a QR decomposition of a random matrix
-    V, r = np.linalg.qr(V)
+def init_transform(dim, m=None):
+    if m is not None:
+        V = np.random.rand(dim, m)
+    else:
+        V = np.random.rand(dim, dim)
+        # we want V to be orthonormal, so it is initialized with
+        # a QR decomposition of a random matrix
+        V, r = np.linalg.qr(V)
     return V
 
 # calculate the scatter matrix for the full dataset
@@ -32,9 +36,12 @@ def calculate_scatter(data):
     s_d = s_d @ data
     return s_d
 
-def eigen_decomp(s):
+def sorted_eig(s, m=None):
     # eigendecomposition -> this is where we will sub in randomized svd
-    e_vals, e_vecs = np.linalg.eigh(s)
+    if m is not None:
+        e_vals, e_vecs = fbpca.eigens(s, k=m)
+    else:
+        e_vals, e_vecs = np.linalg.eigh(s)
 
     # sort in ascending order
     idx = np.argsort(e_vals)
