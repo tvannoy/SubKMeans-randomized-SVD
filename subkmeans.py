@@ -56,7 +56,8 @@ class SubKmeans(object):
             nmi = normalized_mutual_info_score(prev_labels, cur_labels)
             n += 1
 
-        print(nmi, n)
+        print("Cluster dim: {}".format(self.m))
+        print("NMI: {}, n_iter: {}".format(nmi, n))
 
     def _update_centroids(self):
         for k, v in self.assignments.items():
