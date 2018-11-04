@@ -133,7 +133,7 @@ class LdaKmeans(Kmeans):
         self._lda = LinearDiscriminantAnalysis(n_components=self.d)
 
         # cluster label targets for LDA
-        self.cluster_assignments = np.zeros((1,len(data)))
+        self.cluster_assignments = np.zeros(len(self.data))
 
         # run pca to find intial subspace directions
         pca = PCA(n_components=self.d, svd_solver='full')
@@ -143,14 +143,15 @@ class LdaKmeans(Kmeans):
     def _find_cluster_assignment(self):
         # re-initialize the clusters, as we are creating new assignments
         self.assignments = defaultdict(list)
-        self.cluster_assignments = np.zeros((1,len(data)))
+        self.cluster_assignments = np.zeros(len(self.data))
 
         # transform the data
         transformed_data = self.data @ self.transform.T
+        transformed_centroids = self.centroids @ self.transform.T
 
         # compute distances to centroids
         for i in range(len(self.data)):
-            dist = np.linalg.norm(self.centroids - transformed_data[i, :], axis=1)
+            dist = np.linalg.norm(transformed_centroids - transformed_data[i, :], axis=1)
             cluster_assignment = np.argmin(dist)
             self.cluster_assignments[i] = cluster_assignment
             self.assignments[cluster_assignment].append(self.data[i, :])
