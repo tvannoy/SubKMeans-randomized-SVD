@@ -36,7 +36,7 @@ class Kmeans(object):
             for k,v in self.assignments.items():
                 cur_labels += list(k * np.ones(len(v)))
 
-            nmi = normalized_mutual_info_score(prev_labels, cur_labels)
+            nmi = normalized_mutual_info_score(prev_labels, cur_labels, average_method='arithmetic')
             n += 1
         print("NMI: {}, n_iter: {}".format(nmi, n))
 
