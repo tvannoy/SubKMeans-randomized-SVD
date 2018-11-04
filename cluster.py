@@ -3,7 +3,7 @@ import utils
 from collections import defaultdict
 # from sklearn.metrics import normalized_mutual_info_score
 from sklearn.decomposition import PCA
-from sklearn.descriminant_anaylsis import LinearDiscriminantAnalysis
+from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 from kmeans import Kmeans
 
 
@@ -101,21 +101,22 @@ class SubKmeansRand(Kmeans):
 
 class PcaKmeans(Kmeans):
     def __init__(self, k, data):
-        super().__init__(k, data)
-
         # run pca before clustering, and account for 90% of variance
         pca = PCA(n_components=0.9, svd_solver='full')
-        self.transformed_data = pca.fit_transform(self.data)
+        data = pca.fit_transform(data)
+
+        super().__init__(k, data)
+
 
     def _find_cluster_assignment(self):
         # re-initialize the clusters, as we are creating new assignments
         self.assignments = defaultdict(list)
 
         # compute distances to centroids
-        for i in range(len(self.transformed_data))
-            dist = np.linalg.norm(self.centroids - self.transformed_data[i, :], axis=1)
+        for i in range(len(self.data)):
+            dist = np.linalg.norm(self.centroids - self.data[i, :], axis=1)
             cluster_assignment = np.argmin(dist)
-            self.assignments[cluster_assignment].append(self.transformed_data[i, :])
+            self.assignments[cluster_assignment].append(self.data[i, :])
 
     def _update_transformation(self):
         # pca kmeans doesn't iteratively update a transformation matrix
@@ -130,6 +131,7 @@ class LdaKmeans(Kmeans):
         self.d = k - 1
 
         self._lda = LinearDiscriminantAnalysis(n_components=self.d)
+
         # cluster label targets for LDA
         self.cluster_assignments = np.zeros((1,len(data)))
 
@@ -147,7 +149,7 @@ class LdaKmeans(Kmeans):
         transformed_data = self.data @ self.transform.T
 
         # compute distances to centroids
-        for i in range(len(self.data))
+        for i in range(len(self.data)):
             dist = np.linalg.norm(self.centroids - transformed_data[i, :], axis=1)
             cluster_assignment = np.argmin(dist)
             self.cluster_assignments[i] = cluster_assignment
