@@ -2,7 +2,10 @@ import numpy as np
 import utils
 from collections import defaultdict
 # from sklearn.metrics import normalized_mutual_info_score
+from sklearn.decomposition import PCA
+from sklearn.descriminant_anaylsis import LinearDiscriminantAnalysis
 from kmeans import Kmeans
+
 
 class SubKmeans(Kmeans):
     def __init__(self, k, data):
@@ -21,8 +24,8 @@ class SubKmeans(Kmeans):
         self.noise_space_assignments = defaultdict(list)
 
         # calculate the cluster space mapping
-        self.pc = utils.calc_pc(self.data.shape[1], self.m)    
-        cluster_space_mapping = self.pc.T @ self.transform.T   
+        self.pc = utils.calc_pc(self.data.shape[1], self.m)
+        cluster_space_mapping = self.pc.T @ self.transform.T
 
         # calculate the noise space mapping
         self.pn = utils.calc_pn(self.data.shape[1], self.m)
@@ -61,11 +64,11 @@ class SubKmeans(Kmeans):
 
 class SubKmeansRand(Kmeans):
     def __init__(self, k, data):
-        super().__init__(k, data) 
+        super().__init__(k, data)
         self.m = int(np.sqrt(data.shape[1]))                           # cluster space dims
         self.transform = utils.init_transform(data.shape[1], m=self.m) # init transformation matrix
         self.s_d = utils.calculate_scatter(self.data)                  # compute scatter matrix S_D
-    
+
     def _find_cluster_assignment(self):
         # re initialize clusters, as we are creating new assignments
         self.assignments = defaultdict(list)
@@ -94,4 +97,65 @@ class SubKmeansRand(Kmeans):
 
     def _get_M(self, eigen_values):
         self.m = max(1, len([i for i in eigen_values if i < -1e-10]))
-        
+
+
+class PcaKmeans(Kmeans):
+    def __init__(self, k, data):
+        super().__init__(k, data)
+
+        # run pca before clustering, and account for 90% of variance
+        pca = PCA(n_components=0.9, svd_solver='full')
+        self.transformed_data = pca.fit_transform(self.data)
+
+    def _find_cluster_assignment(self):
+        # re-initialize the clusters, as we are creating new assignments
+        self.assignments = defaultdict(list)
+
+        # compute distances to centroids
+        for i in range(len(self.transformed_data))
+            dist = np.linalg.norm(self.centroids - self.transformed_data[i, :], axis=1)
+            cluster_assignment = np.argmin(dist)
+            self.assignments[cluster_assignment].append(self.transformed_data[i, :])
+
+    def _update_transformation(self):
+        # pca kmeans doesn't iteratively update a transformation matrix
+        pass
+
+
+class LdaKmeans(Kmeans):
+    def __init__(self, k, data):
+        super().__init__(k, data)
+
+        # set the subspace dimension
+        self.d = k - 1
+
+        self._lda = LinearDiscriminantAnalysis(n_components=self.d)
+        # cluster label targets for LDA
+        self.cluster_assignments = np.zeros((1,len(data)))
+
+        # run pca to find intial subspace directions
+        pca = PCA(n_components=self.d, svd_solver='full')
+        pca.fit(self.data)
+        self.transform = pca.components_
+
+    def _find_cluster_assignment(self):
+        # re-initialize the clusters, as we are creating new assignments
+        self.assignments = defaultdict(list)
+        self.cluster_assignments = np.zeros((1,len(data)))
+
+        # transform the data
+        transformed_data = self.data @ self.transform.T
+
+        # compute distances to centroids
+        for i in range(len(self.data))
+            dist = np.linalg.norm(self.centroids - transformed_data[i, :], axis=1)
+            cluster_assignment = np.argmin(dist)
+            self.cluster_assignments[i] = cluster_assignment
+            self.assignments[cluster_assignment].append(self.data[i, :])
+
+    def _update_transformation(self):
+        # fit LDA using current class labels
+        self._lda.fit(self.data, self.cluster_assignments)
+
+        # get the LDA directions for the transformation
+        self.transform = self._lda.coef_
