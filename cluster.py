@@ -101,20 +101,24 @@ class SubKmeansRand(Kmeans):
 
 class PcaKmeans(Kmeans):
     def __init__(self, k, data):
-        # run pca before clustering, and account for 90% of variance
-        pca = PCA(n_components=0.9, svd_solver='full')
-        data = pca.fit_transform(data)
-
         super().__init__(k, data)
 
+        # run pca before clustering, and account for 90% of variance
+        pca = PCA(n_components=0.9, svd_solver='full')
+        pca.fit(data)
+        self.transform = pca.components_
 
     def _find_cluster_assignment(self):
         # re-initialize the clusters, as we are creating new assignments
         self.assignments = defaultdict(list)
 
+        # transform the data
+        transformed_data = self.data @ self.transform.T
+        transformed_centroids = self.centroids @ self.transform.T
+
         # compute distances to centroids
         for i in range(len(self.data)):
-            dist = np.linalg.norm(self.centroids - self.data[i, :], axis=1)
+            dist = np.linalg.norm(transformed_centroids - transformed_data[i, :], axis=1)
             cluster_assignment = np.argmin(dist)
             self.assignments[cluster_assignment].append(self.data[i, :])
 
