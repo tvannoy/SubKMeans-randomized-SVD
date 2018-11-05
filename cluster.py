@@ -127,6 +127,7 @@ class PcaKmeans(Kmeans):
         pass
 
     def calc_cost(self):
+        # calculate standard kmeans objective function in the projected subspace
         transformed_centroids = self.centroids @ self.transform.T
 
         cost = 0
@@ -161,6 +162,7 @@ class LdaKmeans(Kmeans):
 
         # transform the data
         transformed_data = self.data @ self.transform.T
+        # XXX: the LdaKmeans paper uses U^T @ centroids
         transformed_centroids = self.centroids @ self.transform.T
 
         # compute distances to centroids
@@ -176,3 +178,14 @@ class LdaKmeans(Kmeans):
 
         # get the LDA directions for the transformation
         self.transform = self._lda.coef_
+
+    def calc_cost(self):
+        # calculate standard kmeans objective function in the projected subspace
+        transformed_centroids = self.centroids @ self.transform.T
+
+        cost = 0
+        for i in range(self.k):
+            transformed_data = self.assignments[i] @ self.transform.T
+            cost += np.sum(np.linalg.norm(transformed_data - transformed_centroids[i], axis=1))
+
+        return cost
