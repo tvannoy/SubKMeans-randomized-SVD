@@ -54,3 +54,6 @@ class Kmeans(object):
 
     def _update_transformation(self):
         raise NotImplementedError("Please implement this method.")
+
+    def calc_cost(self):
+        raise NotImplementedError("Please implement this method.")

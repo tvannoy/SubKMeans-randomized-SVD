@@ -126,6 +126,16 @@ class PcaKmeans(Kmeans):
         # pca kmeans doesn't iteratively update a transformation matrix
         pass
 
+    def calc_cost(self):
+        transformed_centroids = self.centroids @ self.transform.T
+
+        cost = 0
+        for i in range(self.k):
+            transformed_data = self.assignments[i] @ self.transform.T
+            cost += np.sum(np.linalg.norm(transformed_data - transformed_centroids[i], axis=1))
+
+        return cost
+
 
 class LdaKmeans(Kmeans):
     def __init__(self, k, data):
