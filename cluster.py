@@ -61,6 +61,24 @@ class SubKmeans(Kmeans):
     def _get_M(self, eigen_values):
         self.m = len([i for i in eigen_values if i < -1e-10])
 
+    def calc_cost(self):
+        # implement cost function from https://doi.org/10.1145/3097983.3097989
+        cost = 0
+
+        # clustered subspace term
+        for i in range(self.k):
+            mapped_data = (self.pc.T @ self.tansform.T @ self.assignments[i].T).T
+            mapped_centroids = (self.pc.T @ self.transform.T @ self.centroids[i].T).T
+            cost += np.sum(np.linalg.norm(mapped_data - mapped_centroid, axis=1))
+
+        # noise subspace term
+        dataset_mean = np.mean(self.data, axis=0)
+        noise_data = (self.pn.T @ self.transform.T @ self.data.T).T
+        noise_mean = (self.pn.T @ self.transform.T @ dataset_mean.T).T
+        cost += np.sum(np.linalg.norm(noise_data - noise_mean))
+
+        return cost
+
 
 class SubKmeansRand(Kmeans):
     def __init__(self, k, data):
