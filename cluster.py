@@ -58,6 +58,9 @@ class SubKmeans(Kmeans):
     def _get_M(self, eigen_values):
         self.m = len([i for i in eigen_values if i < -1e-10])
 
+    def get_cost(self):
+        pass 
+
 
 class SubKmeansRand(Kmeans):
     def __init__(self, k, data):
@@ -99,6 +102,7 @@ class SubKmeansRand(Kmeans):
 
     def get_cost(self):
         scatter = self.s_i - self.s_d
-        cost = self.transform.T @ scatter[:self.m, :self.m] @ self.transform
+        cost = np.matrix.trace(self.transform.T @ scatter @ self.transform) + \
+               np.matrix.trace(self.transform.T @ self.s_d @ self.transform)
         return cost 
         
