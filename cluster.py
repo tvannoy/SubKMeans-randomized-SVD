@@ -1,8 +1,9 @@
 import numpy as np
 import utils
 from collections import defaultdict
-# from sklearn.metrics import normalized_mutual_info_score
 from kmeans import Kmeans
+from sklearn.decomposition import PCA
+from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 
 class SubKmeans(Kmeans):
     def __init__(self, k, data):
@@ -58,8 +59,23 @@ class SubKmeans(Kmeans):
     def _get_M(self, eigen_values):
         self.m = len([i for i in eigen_values if i < -1e-10])
 
-    def get_cost(self):
-        pass 
+    def calc_cost(self):
+        # implement cost function from https://doi.org/10.1145/3097983.3097989
+        cost = 0
+
+        # clustered subspace term
+        for i in range(self.k):
+            mapped_data = (self.pc.T @ self.transform.T @ self.assignments[i].T).T
+            mapped_centroids = (self.pc.T @ self.transform.T @ self.centroids[i].T).T
+            cost += np.sum(np.linalg.norm(mapped_data - mapped_centroids, axis=1))
+
+        # noise subspace term
+        dataset_mean = np.mean(self.data, axis=0)
+        noise_data = (self.pn.T @ self.transform.T @ self.data.T).T
+        noise_mean = (self.pn.T @ self.transform.T @ dataset_mean.T).T
+        cost += np.sum(np.linalg.norm(noise_data - noise_mean))
+
+        return cost
 
 
 class SubKmeansRand(Kmeans):
@@ -100,9 +116,101 @@ class SubKmeansRand(Kmeans):
     def _get_M(self, eigen_values):
         self.m = max(1, len([i for i in eigen_values if i < -1e-10]))
 
-    def get_cost(self):
+    def calc_cost(self):
         scatter = self.s_i - self.s_d
         cost = np.matrix.trace(self.transform.T @ scatter @ self.transform) + \
                np.matrix.trace(self.transform.T @ self.s_d @ self.transform)
         return cost 
+
+
+class PcaKmeans(Kmeans):
+    def __init__(self, k, data):
+        super().__init__(k, data)
+
+        # run pca before clustering, and account for 90% of variance
+        pca = PCA(n_components=0.9, svd_solver='full')
+        pca.fit(data)
+        self.transform = pca.components_
+
+    def _find_cluster_assignment(self):
+        # re-initialize the clusters, as we are creating new assignments
+        self.assignments = defaultdict(list)
+
+        # transform the data
+        transformed_data = self.data @ self.transform.T
+        transformed_centroids = self.centroids @ self.transform.T
+
+        # compute distances to centroids
+        for i in range(len(self.data)):
+            dist = np.linalg.norm(transformed_centroids - transformed_data[i, :], axis=1)
+            cluster_assignment = np.argmin(dist)
+            self.assignments[cluster_assignment].append(self.data[i, :])
+
+    def _update_transformation(self):
+        # pca kmeans doesn't iteratively update a transformation matrix
+        pass
+
+    def calc_cost(self):
+        # calculate standard kmeans objective function in the projected subspace
+        transformed_centroids = self.centroids @ self.transform.T
+
+        cost = 0
+        for i in range(self.k):
+            transformed_data = self.assignments[i] @ self.transform.T
+            cost += np.sum(np.linalg.norm(transformed_data - transformed_centroids[i], axis=1))
+
+        return cost
+
+
+class LdaKmeans(Kmeans):
+    def __init__(self, k, data):
+        super().__init__(k, data)
+
+        # set the subspace dimension
+        self.d = k - 1
+
+        self._lda = LinearDiscriminantAnalysis(n_components=self.d)
+
+        # cluster label targets for LDA
+        self.cluster_assignments = np.zeros(len(self.data))
+
+        # run pca to find intial subspace directions
+        pca = PCA(n_components=self.d, svd_solver='full')
+        pca.fit(self.data)
+        self.transform = pca.components_
+
+    def _find_cluster_assignment(self):
+        # re-initialize the clusters, as we are creating new assignments
+        self.assignments = defaultdict(list)
+        self.cluster_assignments = np.zeros(len(self.data))
+
+        # transform the data
+        transformed_data = self.data @ self.transform.T
+        # XXX: the LdaKmeans paper uses U^T @ centroids
+        transformed_centroids = self.centroids @ self.transform.T
+
+        # compute distances to centroids
+        for i in range(len(self.data)):
+            dist = np.linalg.norm(transformed_centroids - transformed_data[i, :], axis=1)
+            cluster_assignment = np.argmin(dist)
+            self.cluster_assignments[i] = cluster_assignment
+            self.assignments[cluster_assignment].append(self.data[i, :])
+
+    def _update_transformation(self):
+        # fit LDA using current class labels
+        self._lda.fit(self.data, self.cluster_assignments)
+
+        # get the LDA directions for the transformation
+        self.transform = self._lda.coef_
+
+    def calc_cost(self):
+        # calculate standard kmeans objective function in the projected subspace
+        transformed_centroids = self.centroids @ self.transform.T
+
+        cost = 0
+        for i in range(self.k):
+            transformed_data = self.assignments[i] @ self.transform.T
+            cost += np.sum(np.linalg.norm(transformed_data - transformed_centroids[i], axis=1))
+
+        return cost
         
