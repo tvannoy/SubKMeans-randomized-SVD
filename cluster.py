@@ -1,9 +1,10 @@
 import numpy as np
 import utils
 from collections import defaultdict
-from kmeans import Kmeans
 from sklearn.decomposition import PCA
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
+from kmeans import Kmeans
+
 
 class SubKmeans(Kmeans):
     def __init__(self, k, data):
@@ -22,8 +23,8 @@ class SubKmeans(Kmeans):
         self.noise_space_assignments = defaultdict(list)
 
         # calculate the cluster space mapping
-        self.pc = utils.calc_pc(self.data.shape[1], self.m)    
-        cluster_space_mapping = self.pc.T @ self.transform.T   
+        self.pc = utils.calc_pc(self.data.shape[1], self.m)
+        cluster_space_mapping = self.pc.T @ self.transform.T
 
         # calculate the noise space mapping
         self.pn = utils.calc_pn(self.data.shape[1], self.m)
@@ -80,7 +81,7 @@ class SubKmeans(Kmeans):
 
 class SubKmeansRand(Kmeans):
     def __init__(self, k, data):
-        super().__init__(k, data) 
+        super().__init__(k, data)
         self.m = int(np.sqrt(data.shape[1]))                           # cluster space dims
         self.transform = utils.init_transform(data.shape[1], m=self.m) # init transformation matrix
         self.s_d = utils.calculate_scatter(self.data)                  # compute scatter matrix S_D
@@ -121,7 +122,6 @@ class SubKmeansRand(Kmeans):
         cost = np.matrix.trace(self.transform.T @ scatter @ self.transform) + \
                np.matrix.trace(self.transform.T @ self.s_d @ self.transform)
         return cost 
-
 
 class PcaKmeans(Kmeans):
     def __init__(self, k, data):
@@ -213,4 +213,3 @@ class LdaKmeans(Kmeans):
             cost += np.sum(np.linalg.norm(transformed_data - transformed_centroids[i], axis=1))
 
         return cost
-        
