@@ -31,6 +31,7 @@ class Kmeans(object):
             self._find_cluster_assignment()
             self._update_centroids()
             self._update_transformation()
+            print(self.get_cost())
 
             cur_labels = []
             for k,v in self.assignments.items():
@@ -47,10 +48,8 @@ class Kmeans(object):
             centroid = np.mean(pts, axis=0)
             self.centroids[k,:] = centroid
 
-
     def _find_cluster_assignment(self):
         raise NotImplementedError("Please implement this method.")
-
 
     def _update_transformation(self):
         raise NotImplementedError("Please implement this method.")
