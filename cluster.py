@@ -65,6 +65,7 @@ class SubKmeansRand(Kmeans):
         self.m = int(np.sqrt(data.shape[1]))                           # cluster space dims
         self.transform = utils.init_transform(data.shape[1], m=self.m) # init transformation matrix
         self.s_d = utils.calculate_scatter(self.data)                  # compute scatter matrix S_D
+        self.s_i = []                                                  # scatter matrix S_i
     
     def _find_cluster_assignment(self):
         # re initialize clusters, as we are creating new assignments
@@ -87,6 +88,7 @@ class SubKmeansRand(Kmeans):
         s_i = np.zeros((self.data.shape[1], self.data.shape[1]))
         for i in range(self.k):
             s_i += (utils.calculate_scatter(np.array(self.assignments[i])))
+        self.s_i = s_i
 
         # where we sub in randomized svd
         eigen_values, self.transform = utils.sorted_eig(s_i - self.s_d, m=self.m)
@@ -94,4 +96,9 @@ class SubKmeansRand(Kmeans):
 
     def _get_M(self, eigen_values):
         self.m = max(1, len([i for i in eigen_values if i < -1e-10]))
+
+    def get_cost(self):
+        scatter = self.s_i - self.s_d
+        cost = self.transform.T @ scatter[:self.m, :self.m] @ self.transform
+        return cost 
         
