@@ -31,7 +31,6 @@ class Kmeans(object):
             self._find_cluster_assignment()
             self._update_centroids()
             self._update_transformation()
-            print(self.get_cost())
 
             cur_labels = []
             for k,v in self.assignments.items():
