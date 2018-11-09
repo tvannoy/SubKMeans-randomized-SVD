@@ -66,7 +66,7 @@ class SubKmeans(Kmeans):
 
         # clustered subspace term
         for i in range(self.k):
-            mapped_data = (self.pc.T @ self.transform.T @ self.assignments[i].T).T
+            mapped_data = (self.pc.T @ self.transform.T @ np.vstack(self.assignments[i]).T).T
             mapped_centroids = (self.pc.T @ self.transform.T @ self.centroids[i].T).T
             cost += np.sum(np.linalg.norm(mapped_data - mapped_centroids, axis=1))
 
@@ -156,7 +156,7 @@ class PcaKmeans(Kmeans):
 
         cost = 0
         for i in range(self.k):
-            transformed_data = self.assignments[i] @ self.transform.T
+            transformed_data = np.vstack(self.assignments[i]) @ self.transform.T
             cost += np.sum(np.linalg.norm(transformed_data - transformed_centroids[i], axis=1))
 
         return cost
@@ -209,7 +209,7 @@ class LdaKmeans(Kmeans):
 
         cost = 0
         for i in range(self.k):
-            transformed_data = self.assignments[i] @ self.transform.T
+            transformed_data = np.vstack(self.assignments[i]) @ self.transform.T
             cost += np.sum(np.linalg.norm(transformed_data - transformed_centroids[i], axis=1))
 
         return cost
