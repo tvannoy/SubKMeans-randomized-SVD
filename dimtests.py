@@ -17,6 +17,7 @@ def data_size_test(algorithm):
     median_runtimes = []
     nmi = [] 
     for d in dim_sizes:
+        print("\nDimensionality: {}\n".format(d))
         # create synthetic dataset
         data, labels = make_classification(n_samples=1000, n_features=d,
             n_informative=2, n_classes=3, n_redundant=0, n_clusters_per_class=1)
@@ -47,7 +48,7 @@ def data_size_test(algorithm):
     print("median runtimes: {}".format(median_runtimes))
     print("NMI: {}".format(nmi))
 
-    return (sample_sizes, median_runtimes, nmi)
+    return (dim_sizes, median_runtimes, nmi)
 
 if __name__ == '__main__':
     algorithms = (cluster.SubKmeansRand, cluster.SubKmeans, cluster.PcaKmeans, cluster.LdaKmeans)
@@ -57,7 +58,7 @@ if __name__ == '__main__':
 
     for alg in algorithms:
         print("running dimensionality test on {}".format(alg.__name__))
-        sample_sizes, median_runtimes, nmi = data_size_test(alg)
+        dim_sizes, median_runtimes, nmi = data_size_test(alg)
         results[alg.__name__] = (sample_sizes, median_runtimes, nmi)
 
         # save results
@@ -69,8 +70,8 @@ if __name__ == '__main__':
         filename = os.path.join(results_dir, "dim_results_" + alg.__name__ + "_" + t + ".csv")
         with open(filename, 'w') as f:
             writer = csv.writer(f)
-            writer.writerow(['sample_size', 'median_runtime', 'NMI'])
-            for size, runtime, nmi in zip(sample_sizes, median_runtimes, nmi):
+            writer.writerow(['dim_size', 'median_runtime', 'NMI'])
+            for size, runtime, nmi in zip(dim_sizes, median_runtimes, nmi):
                 writer.writerow([size, runtime, nmi])
 
     # for alg in keys:
