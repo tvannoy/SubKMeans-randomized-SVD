@@ -12,7 +12,7 @@ import cluster
 
 def data_size_test(algorithm):
 
-    dim_sizes = np.logspace(4, 6, 8, dtype=np.int)
+    dim_sizes = np.logspace(2, 4, 8, dtype=np.int)
 
     median_runtimes = []
     nmi = [] 
