@@ -59,7 +59,7 @@ if __name__ == '__main__':
     for alg in algorithms:
         print("running dimensionality test on {}".format(alg.__name__))
         dim_sizes, median_runtimes, nmi = data_size_test(alg)
-        results[alg.__name__] = (sample_sizes, median_runtimes, nmi)
+        results[alg.__name__] = (dim_sizes, median_runtimes, nmi)
 
         # save results
         results_dir = os.path.join(os.getcwd(), "Results")
