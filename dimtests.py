@@ -12,13 +12,13 @@ import cluster
 
 def data_size_test(algorithm):
 
-    sample_sizes = np.logspace(4, 6, 8, dtype=np.int)
+    dim_sizes = np.logspace(4, 6, 8, dtype=np.int)
 
     median_runtimes = []
     nmi = [] 
-    for n_samples in sample_sizes:
+    for d in dim_sizes:
         # create synthetic dataset
-        data, labels = make_classification(n_samples=n_samples, n_features=500,
+        data, labels = make_classification(n_samples=1000, n_features=d,
             n_informative=2, n_classes=3, n_redundant=0, n_clusters_per_class=1)
 
         runtimes = []
@@ -56,7 +56,7 @@ if __name__ == '__main__':
     results = dict.fromkeys(keys)
 
     for alg in algorithms:
-        print("running data size test on {}".format(alg.__name__))
+        print("running dimensionality test on {}".format(alg.__name__))
         sample_sizes, median_runtimes, nmi = data_size_test(alg)
         results[alg.__name__] = (sample_sizes, median_runtimes, nmi)
 
@@ -66,16 +66,16 @@ if __name__ == '__main__':
             os.mkdir(results_dir)
 
         t = strftime("%H_%M_%S", gmtime())
-        filename = os.path.join(results_dir, "runtime_results_" + alg.__name__ + "_" + t + ".csv")
+        filename = os.path.join(results_dir, "dim_results_" + alg.__name__ + "_" + t + ".csv")
         with open(filename, 'w') as f:
             writer = csv.writer(f)
             writer.writerow(['sample_size', 'median_runtime', 'NMI'])
             for size, runtime, nmi in zip(sample_sizes, median_runtimes, nmi):
                 writer.writerow([size, runtime, nmi])
 
-    for alg in keys:
-        plt.semilogx(results[alg][0], results[alg][1] ,'-o')
-    plt.legend(keys)
-    plt.xlabel('sample size')
-    plt.ylabel('median runtime [s]')
-    plt.show()
+    # for alg in keys:
+    #     plt.semilogx(results[alg][0], results[alg][1] ,'-o')
+    # plt.legend(keys)
+    # plt.xlabel('sample size')
+    # plt.ylabel('median runtime [s]')
+    # plt.show()
