@@ -13,14 +13,17 @@ import cluster
 def data_size_test(algorithm):
 
     dim_sizes = np.logspace(2, 4, 8, dtype=np.int)
-
-    median_runtimes = []
-    nmi = [] 
+    sets = []
     for d in dim_sizes:
-        print("\nDimensionality: {}\n".format(d))
         # create synthetic dataset
         data, labels = make_classification(n_samples=1000, n_features=d,
             n_informative=2, n_classes=3, n_redundant=0, n_clusters_per_class=1)
+        sets.append((data,labels))
+
+    median_runtimes = []
+    nmi = [] 
+    for data, labels in sets:
+        print("\nDimensionality: {}\n".format(data.shape[1]))
 
         runtimes = []
         loc_nmi = []
