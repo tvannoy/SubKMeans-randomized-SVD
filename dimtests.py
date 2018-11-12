@@ -38,7 +38,7 @@ def data_size_test(algorithm):
             cur_labels = []
             for k,v in alg.assignments.items():
                 cur_labels += list(k * np.ones(len(v)))
-            loc_nmi.append(normalized_mutual_info_score(labels, cur_labels))
+            loc_nmi.append(normalized_mutual_info_score(sorted(labels), sorted(cur_labels)))
 
         median_runtime = np.median(runtimes)
         median_runtimes.append(median_runtime)
