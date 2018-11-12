@@ -10,16 +10,7 @@ from time import perf_counter, strftime, gmtime
 
 import cluster
 
-def data_size_test(algorithm):
-
-    dim_sizes = np.logspace(2, 4, 8, dtype=np.int)
-    sets = []
-    for d in dim_sizes:
-        # create synthetic dataset
-        data, labels = make_classification(n_samples=1000, n_features=d,
-            n_informative=2, n_classes=3, n_redundant=0, n_clusters_per_class=1)
-        sets.append((data,labels))
-
+def data_size_test(algorithm, sets):
     median_runtimes = []
     nmi = [] 
     for data, labels in sets:
@@ -59,9 +50,17 @@ if __name__ == '__main__':
     keys = [alg.__name__ for alg in algorithms]
     results = dict.fromkeys(keys)
 
+    dim_sizes = np.logspace(2, 4, 8, dtype=np.int)
+    sets = []
+    for d in dim_sizes:
+        # create synthetic dataset
+        data, labels = make_classification(n_samples=1000, n_features=d,
+            n_informative=10, n_classes=3, n_redundant=0, n_clusters_per_class=1)
+        sets.append((data,labels))
+
     for alg in algorithms:
         print("running dimensionality test on {}".format(alg.__name__))
-        dim_sizes, median_runtimes, nmi = data_size_test(alg)
+        dim_sizes, median_runtimes, nmi = data_size_test(alg, sets)
         results[alg.__name__] = (dim_sizes, median_runtimes, nmi)
 
         # save results
