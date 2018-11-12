@@ -11,7 +11,7 @@ import cluster
 
 def data_size_test(algorithm):
 
-    sample_sizes = np.logspace(4, 6, 20, dtype=np.int)
+    sample_sizes = np.logspace(2, 4, 20, dtype=np.int)
 
     median_runtimes = []
     for n_samples in sample_sizes:
@@ -56,7 +56,7 @@ if __name__ == '__main__':
             os.mkdir(results_dir)
 
         t = strftime("%H_%M_%S", gmtime())
-        filename = os.path.join(results_dir, "runtime_results_" + alg.__name__ + "_" + t + ".csv")
+        filename = os.path.join(results_dir, "runtime_results_" + t + ".csv")
         with open(filename, 'w') as f:
             writer = csv.writer(f)
             writer.writerow(['sample_size', 'median_runtime'])
@@ -64,7 +64,7 @@ if __name__ == '__main__':
                 writer.writerow([size, runtime])
 
     for alg in keys:
-        plt.semilogx(results[alg][0], results[alg][1] ,'-o')
+        plt.loglog(results[alg][0], results[alg][1] ,'-o')
     plt.legend(keys)
     plt.xlabel('sample size')
     plt.ylabel('median runtime [s]')
