@@ -10,16 +10,11 @@ from time import perf_counter, strftime, gmtime
 
 import cluster
 
-def data_size_test(algorithm):
-
-    sample_sizes = np.logspace(4, 6, 8, dtype=np.int)
-
+def data_size_test(algorithm, sets):
     median_runtimes = []
-    nmi = []
-    for n_samples in sample_sizes:
-        # create synthetic dataset
-        data, labels = make_classification(n_samples=n_samples, n_features=500,
-            n_informative=2, n_classes=3, n_redundant=0, n_clusters_per_class=1)
+    nmi = [] 
+    for data, labels in sets:
+        print("\nDimensionality: {}\n".format(data.shape[1]))
 
         runtimes = []
         loc_nmi = []
@@ -37,7 +32,7 @@ def data_size_test(algorithm):
             cur_labels = []
             for k,v in alg.assignments.items():
                 cur_labels += list(k * np.ones(len(v)))
-            loc_nmi.append(normalized_mutual_info_score(labels, cur_labels))
+            loc_nmi.append(normalized_mutual_info_score(sorted(labels), sorted(cur_labels)))
 
         median_runtime = np.median(runtimes)
         median_runtimes.append(median_runtime)
@@ -47,7 +42,7 @@ def data_size_test(algorithm):
     print("median runtimes: {}".format(median_runtimes))
     print("NMI: {}".format(nmi))
 
-    return (sample_sizes, median_runtimes, nmi)
+    return (dim_sizes, median_runtimes, nmi)
 
 if __name__ == '__main__':
     algorithms = (cluster.SubKmeansRand, cluster.SubKmeans, cluster.PcaKmeans, cluster.LdaKmeans)
@@ -55,10 +50,18 @@ if __name__ == '__main__':
     keys = [alg.__name__ for alg in algorithms]
     results = dict.fromkeys(keys)
 
+    dim_sizes = np.logspace(2, 4, 8, dtype=np.int)
+    sets = []
+    for d in dim_sizes:
+        # create synthetic dataset
+        data, labels = make_classification(n_samples=1000, n_features=d,
+            n_informative=10, n_classes=3, n_redundant=0, n_clusters_per_class=1)
+        sets.append((data,labels))
+
     for alg in algorithms:
-        print("running data size test on {}".format(alg.__name__))
-        sample_sizes, median_runtimes, nmi = data_size_test(alg)
-        results[alg.__name__] = (sample_sizes, median_runtimes, nmi)
+        print("running dimensionality test on {}".format(alg.__name__))
+        dim_sizes, median_runtimes, nmi = data_size_test(alg, sets)
+        results[alg.__name__] = (dim_sizes, median_runtimes, nmi)
 
         # save results
         results_dir = os.path.join(os.getcwd(), "Results")
@@ -66,16 +69,16 @@ if __name__ == '__main__':
             os.mkdir(results_dir)
 
         t = strftime("%H_%M_%S", gmtime())
-        filename = os.path.join(results_dir, "runtime_results_" + alg.__name__ + "_" +  t + ".csv")
+        filename = os.path.join(results_dir, "dim_results_" + alg.__name__ + "_" + t + ".csv")
         with open(filename, 'w') as f:
             writer = csv.writer(f)
-            writer.writerow(['sample_size', 'median_runtime', 'NMI'])
-            for size, runtime, nmi in zip(sample_sizes, median_runtimes, nmi):
+            writer.writerow(['dim_size', 'median_runtime', 'NMI'])
+            for size, runtime, nmi in zip(dim_sizes, median_runtimes, nmi):
                 writer.writerow([size, runtime, nmi])
 
-    for alg in keys:
-        plt.loglog(results[alg][0], results[alg][1] ,'-o')
-    plt.legend(keys)
-    plt.xlabel('sample size')
-    plt.ylabel('median runtime [s]')
-    plt.show()
+    # for alg in keys:
+    #     plt.semilogx(results[alg][0], results[alg][1] ,'-o')
+    # plt.legend(keys)
+    # plt.xlabel('sample size')
+    # plt.ylabel('median runtime [s]')
+    # plt.show()
