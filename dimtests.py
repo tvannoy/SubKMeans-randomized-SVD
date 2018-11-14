@@ -5,6 +5,7 @@ import numpy as np
 import csv
 import os
 from sklearn.datasets import make_classification
+from sklearn.datasets import make_blobs
 from sklearn.metrics import normalized_mutual_info_score
 from time import perf_counter, strftime, gmtime
 
@@ -54,8 +55,9 @@ if __name__ == '__main__':
     sets = []
     for d in dim_sizes:
         # create synthetic dataset
-        data, labels = make_classification(n_samples=1000, n_features=d,
-            n_informative=10, n_classes=3, n_redundant=0, n_clusters_per_class=1)
+        # data, labels = make_classification(n_samples=1000, n_features=d,
+        #     n_informative=10, n_classes=3, n_redundant=0, n_clusters_per_class=1)
+        data, labels = make_blobs(n_samples=1000, n_features=d, centers=3, cluster_std=1.0, center_box=(-10.0, 10.0), shuffle=True, random_state=None)
         sets.append((data,labels))
 
     for alg in algorithms:
