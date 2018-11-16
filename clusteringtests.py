@@ -2,12 +2,13 @@
 
 import pickle
 import os
+import  csv
 import numpy as np
 from sklearn.metrics import normalized_mutual_info_score
 from sklearn.metrics import f1_score
 from sklearn import preprocessing
 from sklearn import datasets
-from time import gmtime, strftime
+from time import gmtime, strftime, perf_counter
 
 import cluster
 
@@ -16,12 +17,18 @@ def cluster_test(algorithm, data, labels):
     data = preprocessing.scale(data)
 
     results = []
+    times = []
     costs = []
 
     # run each algorithm 40 times
     for i in range(40):
-        alg = algorithm(len(set(labels)), data) # choose your algorithm
+        alg = algorithm(len(set(labels)), data)
+        t0 = perf_counter()
         alg.run()
+        t1 = perf_counter()
+
+        # store runtime
+        times.append(t1 - t0)
 
         # calculate cluster labels
         cur_labels = []
@@ -45,16 +52,17 @@ def cluster_test(algorithm, data, labels):
 
     # take 20 lowest costs
     results = [results[i] for i in args[0:20]]
+    times = [times[i] for i in args[0:20]]
     # print(results)
 
-    return np.median(results)
+    return (np.median(results), np.median(times))
 
 if __name__ == "__main__":
     # load in the Plane dataset
-    # plane = np.genfromtxt('datasets/Plane/Plane_combined', delimiter=',')
-    # data_name = 'plane'
-    # labels = plane[:,0] - 1 # subtract one because our class labels start at 0 and the dataset's labels start at 1.
-    # data = plane[:,1:]
+    plane = np.genfromtxt('datasets/Plane/Plane_combined', delimiter=',')
+    data_name = 'plane'
+    labels = plane[:,0] - 1 # subtract one because our class labels start at 0 and the dataset's labels start at 1.
+    data = plane[:,1:]
 
     # load in the OliveOil dataset
     # oliveoil = np.genfromtxt('datasets/OliveOil/OliveOil_combined', delimiter=',')
@@ -69,10 +77,10 @@ if __name__ == "__main__":
     # data = starlight[:,1:]
 
     # load in the Symbols dataset
-    symbols = np.genfromtxt('datasets/Symbols/Symbols_combined', delimiter=',')
-    data_name = 'Symbols'
-    labels = symbols[:,0] - 1
-    data = symbols[:,1:]
+    # symbols = np.genfromtxt('datasets/Symbols/Symbols_combined', delimiter=',')
+    # data_name = 'Symbols'
+    # labels = symbols[:,0] - 1
+    # data = symbols[:,1:]
 
     algorithms = (cluster.SubKmeansRand, cluster.SubKmeans, cluster.PcaKmeans, cluster.LdaKmeans)
     # algorithms = (cluster.SubKmeans,)
@@ -93,5 +101,8 @@ if __name__ == "__main__":
     t = strftime("%H_%M_%S", gmtime())
     filename = os.path.join(results_dir, "clustering_" + data_name + "_" + t + ".csv")
     with open(filename, 'w') as f:
-        f.write(','.join(results.keys()) + '\n')
-        f.write(','.join([str(val) for val in results.values()]))
+        nmi, runtime = zip(*results.values())
+        writer = csv.writer(f)
+        writer.writerow(results.keys())
+        writer.writerow(nmi)
+        writer.writerow(runtime)
