@@ -51,16 +51,28 @@ def cluster_test(algorithm, data, labels):
 
 if __name__ == "__main__":
     # load in the Plane dataset
-    plane = np.genfromtxt('datasets/Plane/Plane_combined', delimiter=',')
-    data_name = 'plane'
-    labels = plane[:,0] - 1 # subtract one because our class labels start at 0 and the dataset's labels start at 1.
-    data = plane[:,1:]
+    # plane = np.genfromtxt('datasets/Plane/Plane_combined', delimiter=',')
+    # data_name = 'plane'
+    # labels = plane[:,0] - 1 # subtract one because our class labels start at 0 and the dataset's labels start at 1.
+    # data = plane[:,1:]
 
     # load in the OliveOil dataset
     # oliveoil = np.genfromtxt('datasets/OliveOil/OliveOil_combined', delimiter=',')
     # data_name = 'OliveOil'
-    # labels = oliveoil[:,0]
+    # labels = oliveoil[:,0] - 1
     # data = oliveoil[:,1:]
+
+    # load in the StarLightCurves dataset
+    # starlight = np.genfromtxt('datasets/StarLightCurves/StarLightCurves_combined', delimiter=',')
+    # data_name = 'StarLightCurves'
+    # labels = starlight[:,0] - 1
+    # data = starlight[:,1:]
+
+    # load in the Symbols dataset
+    symbols = np.genfromtxt('datasets/Symbols/Symbols_combined', delimiter=',')
+    data_name = 'Symbols'
+    labels = symbols[:,0] - 1
+    data = symbols[:,1:]
 
     algorithms = (cluster.SubKmeansRand, cluster.SubKmeans, cluster.PcaKmeans, cluster.LdaKmeans)
     # algorithms = (cluster.SubKmeans,)
@@ -74,10 +86,12 @@ if __name__ == "__main__":
 
     print(results)
     # save results
-    # results_dir = os.path.join(os.getcwd(), "Results")
-    # if not os.path.exists(results_dir):
-    #     os.mkdir(results_dir)
-    #
-    # t = strftime("%H_%M_%S", gmtime())
-    # filename = os.path.join(results_dir, "results_" + t + ".p")
-    # with open(filename, 'w') as f:
+    results_dir = os.path.join(os.getcwd(), "Results")
+    if not os.path.exists(results_dir):
+        os.mkdir(results_dir)
+
+    t = strftime("%H_%M_%S", gmtime())
+    filename = os.path.join(results_dir, "clustering_" + data_name + "_" + t + ".csv")
+    with open(filename, 'w') as f:
+        f.write(','.join(results.keys()) + '\n')
+        f.write(','.join([str(val) for val in results.values()]))
