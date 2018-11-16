@@ -53,7 +53,7 @@ if __name__ == "__main__":
     # load in the Plane dataset
     plane = np.genfromtxt('datasets/Plane/Plane_combined', delimiter=',')
     data_name = 'plane'
-    labels = plane[:,0] - 1
+    labels = plane[:,0] - 1 # subtract one because our class labels start at 0 and the dataset's labels start at 1.
     data = plane[:,1:]
 
     # load in the OliveOil dataset
