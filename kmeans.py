@@ -1,7 +1,7 @@
 import numpy as np
 import utils
 from collections import defaultdict
-import collections 
+import collections
 from sklearn.metrics import normalized_mutual_info_score
 
 compare = lambda x, y: collections.Counter(x) == collections.Counter(y)
@@ -24,7 +24,7 @@ class Kmeans(object):
 
         n = 0
         nmi = 0
-        same = False 
+        same = False
         while (n < max_iter and not same):
             prev_assignments = self.assignments
             # get previous labels
@@ -43,7 +43,7 @@ class Kmeans(object):
             same = compare(prev_labels, cur_labels)
             nmi = normalized_mutual_info_score(prev_labels, cur_labels) #, average_method='arithmetic')
             n += 1
-        print("NMI: {}, n_iter: {}".format(nmi, n))
+        # print("NMI: {}, n_iter: {}".format(nmi, n))
 
 
     def _update_centroids(self):
