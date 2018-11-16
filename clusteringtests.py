@@ -27,8 +27,8 @@ def cluster_test(algorithm, data, labels):
         cur_labels = []
         for k,v in alg.assignments.items():
             cur_labels += list(k * np.ones(len(v)))
-        print(labels)
-        print(cur_labels)
+        # print(labels)
+        # print(cur_labels)
 
         # compute metrics
         nmi = normalized_mutual_info_score(sorted(labels), sorted(cur_labels), average_method='arithmetic')
@@ -45,7 +45,7 @@ def cluster_test(algorithm, data, labels):
 
     # take 20 lowest costs
     results = [results[i] for i in args[0:20]]
-    print(results)
+    # print(results)
 
     return np.median(results)
 
@@ -62,8 +62,8 @@ if __name__ == "__main__":
     # labels = oliveoil[:,0]
     # data = oliveoil[:,1:]
 
-    # algorithms = (cluster.SubKmeansRand, cluster.SubKmeans, cluster.PcaKmeans, cluster.LdaKmeans)
-    algorithms = (cluster.SubKmeans,)
+    algorithms = (cluster.SubKmeansRand, cluster.SubKmeans, cluster.PcaKmeans, cluster.LdaKmeans)
+    # algorithms = (cluster.SubKmeans,)
     keys = [alg.__name__ for alg in algorithms]
     results = dict.fromkeys(keys)
 
