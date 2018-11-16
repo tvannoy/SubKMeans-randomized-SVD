@@ -31,7 +31,7 @@ def cluster_test(algorithm, data, labels):
         print(cur_labels)
 
         # compute metrics
-        nmi = normalized_mutual_info_score(labels, cur_labels, average_method='arithmetic')
+        nmi = normalized_mutual_info_score(sorted(labels), sorted(cur_labels), average_method='arithmetic')
 
         # store result as tuple
         results.append(nmi)
