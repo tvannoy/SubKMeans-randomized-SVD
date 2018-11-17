@@ -10,6 +10,9 @@ from sklearn.metrics import f1_score
 from sklearn import preprocessing
 from sklearn import datasets
 from time import gmtime, strftime, perf_counter
+from collections import defaultdict
+from itertools import count
+from functools import partial
 
 import cluster
 
