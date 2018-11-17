@@ -3,6 +3,7 @@
 import pickle
 import os
 import  csv
+import scipy.io
 import numpy as np
 from sklearn.metrics import normalized_mutual_info_score
 from sklearn.metrics import f1_score
@@ -59,10 +60,10 @@ def cluster_test(algorithm, data, labels):
 
 if __name__ == "__main__":
     # load in the Plane dataset
-    plane = np.genfromtxt('datasets/Plane/Plane_combined', delimiter=',')
-    data_name = 'plane'
-    labels = plane[:,0] - 1 # subtract one because our class labels start at 0 and the dataset's labels start at 1.
-    data = plane[:,1:]
+    # plane = np.genfromtxt('datasets/Plane/Plane_combined', delimiter=',')
+    # data_name = 'plane'
+    # labels = plane[:,0] - 1 # subtract one because our class labels start at 0 and the dataset's labels start at 1.
+    # data = plane[:,1:]
 
     # load in the OliveOil dataset
     # oliveoil = np.genfromtxt('datasets/OliveOil/OliveOil_combined', delimiter=',')
@@ -81,6 +82,23 @@ if __name__ == "__main__":
     # data_name = 'Symbols'
     # labels = symbols[:,0] - 1
     # data = symbols[:,1:]
+
+    # load in the DrivFace dataset
+    matfile = scipy.io.loadmat('datasets/DrivFace/DrivFace.mat') # load in matlab data file
+    drivFace = matfile['drivFaceD'][0,0] # grab the struct
+    data = drivFace['data']
+    labels = drivFace['nlab'][:,0]
+    data_name = 'drivFace'
+
+    # load in the RNASeq dataset
+    # data = np.genfromtxt('datasets/TCGA-PANCAN-HiSeq-801x20531/data.csv', delimiter=',', skip_header=True)
+    # data = data[:,1:] # get rid of sample_# column
+    # labels = np.genfromtxt('datasets/TCGA-PANCAN-HiSeq-801x20531/labels.csv', delimiter=',', skip_header=True, dtype=str)
+    # labels = labels[:,1] # rid of smaple_# column
+    # # convert label strings into numbers (https://stackoverflow.com/questions/17152468/python-enumerate-a-list-of-string-keys-into-ints)
+    # label_to_num = defaultdict(partial(next, count(0)))
+    # labels = np.array([label_to_num[label] for label in labels])
+    # data_name = 'RNASeq'
 
     algorithms = (cluster.SubKmeansRand, cluster.SubKmeans, cluster.PcaKmeans, cluster.LdaKmeans)
     # algorithms = (cluster.SubKmeans,)
