@@ -7,6 +7,7 @@ import os
 from sklearn.datasets import make_classification
 from sklearn.datasets import make_blobs
 from sklearn.metrics import normalized_mutual_info_score
+from sklearn.preprocessing import scale 
 from time import perf_counter, strftime, gmtime
 
 import cluster
@@ -58,6 +59,7 @@ if __name__ == '__main__':
         # data, labels = make_classification(n_samples=1000, n_features=d,
         #     n_informative=10, n_classes=3, n_redundant=0, n_clusters_per_class=1)
         data, labels = make_blobs(n_samples=1000, n_features=d, centers=3, cluster_std=1.0, center_box=(-10.0, 10.0), shuffle=True, random_state=None)
+        data = scale(data) 
         sets.append((data,labels))
 
     for alg in algorithms:
@@ -78,9 +80,3 @@ if __name__ == '__main__':
             for size, runtime, nmi in zip(dim_sizes, median_runtimes, nmi):
                 writer.writerow([size, runtime, nmi])
 
-    # for alg in keys:
-    #     plt.semilogx(results[alg][0], results[alg][1] ,'-o')
-    # plt.legend(keys)
-    # plt.xlabel('sample size')
-    # plt.ylabel('median runtime [s]')
-    # plt.show()
