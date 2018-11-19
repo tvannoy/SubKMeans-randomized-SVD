@@ -43,7 +43,7 @@ class Kmeans(object):
             same = compare(prev_labels, cur_labels)
             nmi = normalized_mutual_info_score(prev_labels, cur_labels) #, average_method='arithmetic')
             n += 1
-        # print("NMI: {}, n_iter: {}".format(nmi, n))
+        print("NMI: {}, n_iter: {}".format(nmi, n))
 
 
     def _update_centroids(self):
