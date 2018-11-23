@@ -28,12 +28,18 @@ def init_transform(dim, m=None):
 
 # calculate the scatter matrix for the full dataset
 def calculate_scatter(data):
-    d = len(data)
-    if d == 0:
-        return [0]
-    c = np.eye(d) - np.multiply(1/d, np.ones((d,d)))
-    s_d = data.T @ c
-    s_d = s_d @ data
+    #Compute the mean vector
+    mean = np.mean(data, axis=0)
+
+    #Computation of scatter plot
+    s_d = (data - mean).T @ (data - mean)
+
+    # d = len(data)
+    # if d == 0:
+    #     return [0]
+    # c = np.eye(d) - np.multiply(1/d, np.ones((d,d)))
+    # s_d = data.T @ c
+    # s_d = s_d @ data
     return s_d
 
 def sorted_eig(s, m=None):
