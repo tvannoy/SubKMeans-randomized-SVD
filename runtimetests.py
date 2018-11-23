@@ -15,6 +15,7 @@ def data_size_test(algorithm, sets):
     median_runtimes = []
     nmi = []
     for data, labels in sets:
+        print("Datasize: {}".format(len(data)))
         runtimes = []
         loc_nmi = []
 
@@ -36,7 +37,7 @@ def data_size_test(algorithm, sets):
         median_runtime = np.median(runtimes)
         median_runtimes.append(median_runtime)
         nmi.append(np.mean(loc_nmi))
-        # print("median runtime: {}".format(median_runtime))
+        print("\nmedian runtime: {}\n".format(median_runtime))
 
     print("median runtimes: {}".format(median_runtimes))
     print("NMI: {}".format(nmi))
@@ -49,12 +50,12 @@ if __name__ == '__main__':
     keys = [alg.__name__ for alg in algorithms]
     results = dict.fromkeys(keys)
 
-    sample_sizes = np.logspace(4, 6, 8, dtype=np.int)
+    sample_sizes = np.logspace(2, 5, 8, dtype=np.int)
     sets = []
     for n_samples in sample_sizes:
         # create synthetic dataset
-        data, labels = make_classification(n_samples=n_samples, n_features=500,
-                                           n_informative=2, n_classes=3, n_redundant=0, n_clusters_per_class=1)
+        data, labels = make_classification(n_samples=n_samples, n_features=100,
+                                           n_informative=20, n_classes=3, n_redundant=0, n_clusters_per_class=1)
         data = scale(data)
         sets.append((data, labels))
 
