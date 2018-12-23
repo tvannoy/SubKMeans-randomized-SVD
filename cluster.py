@@ -3,6 +3,7 @@ import utils
 from collections import defaultdict
 from sklearn.decomposition import PCA
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
+from time import perf_counter
 from kmeans import Kmeans
 
 
@@ -81,13 +82,24 @@ class SubKmeans(Kmeans):
 
 class SubKmeansRand(Kmeans):
     def __init__(self, k, data):
+        print('-----------------------------------')
+        print('__init__')
+        t0 = perf_counter()
+
         super().__init__(k, data)
         self.m = int(np.sqrt(data.shape[1]))                           # cluster space dims
         self.transform = utils.init_transform(data.shape[1], m=self.m) # init transformation matrix
         self.s_d = utils.calculate_scatter(self.data)                  # compute scatter matrix S_D
         self.s_i = []                                                  # scatter matrix S_i
-    
+
+        t1 = perf_counter()
+        print('__init__ runtime: {}'.format(t1-t0))
+
     def _find_cluster_assignment(self):
+        print('-----------------------------------')
+        print('_find_cluster_assignment')
+        t0 = perf_counter()
+
         # re initialize clusters, as we are creating new assignments
         self.assignments = defaultdict(list)
 
@@ -103,7 +115,14 @@ class SubKmeansRand(Kmeans):
             cluster_assignment = np.argmin(dist)
             self.assignments[cluster_assignment].append(self.data[i,:])
 
+        t1 = perf_counter()
+        print('_find_cluster_assignment runtime: {}'.format(t1-t0))
+
     def _update_transformation(self):
+        print('-----------------------------------')
+        print('_update_transformation')
+        t0 = perf_counter()
+
         # compute scatter matrix
         s_i = np.zeros((self.data.shape[1], self.data.shape[1]))
         for i in range(self.k):
@@ -114,6 +133,9 @@ class SubKmeansRand(Kmeans):
         eigen_values, self.transform = utils.sorted_eig(s_i - self.s_d, m=self.m)
         self._get_M(eigen_values)
 
+        t1 = perf_counter()
+        print('_update_transformation runtime: {}'.format(t1-t0))
+
     def _get_M(self, eigen_values):
         self.m = max(1, len([i for i in eigen_values if i < -1e-10]))
 
@@ -121,7 +143,7 @@ class SubKmeansRand(Kmeans):
         scatter = self.s_i - self.s_d
         cost = np.matrix.trace(self.transform.T @ scatter @ self.transform) + \
                np.matrix.trace(self.transform.T @ self.s_d @ self.transform)
-        return cost 
+        return cost
 
 class PcaKmeans(Kmeans):
     def __init__(self, k, data):

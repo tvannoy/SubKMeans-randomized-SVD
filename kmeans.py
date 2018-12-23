@@ -3,6 +3,7 @@ import utils
 from collections import defaultdict
 import collections
 from sklearn.metrics import normalized_mutual_info_score
+from time import perf_counter
 
 compare = lambda x, y: collections.Counter(x) == collections.Counter(y)
 
@@ -47,10 +48,15 @@ class Kmeans(object):
 
 
     def _update_centroids(self):
+        print('-----------------------------------')
+        print('_update_centroids')
+        t0 = perf_counter()
         for k, v in self.assignments.items():
             pts = np.vstack(v)
             centroid = np.mean(pts, axis=0)
             self.centroids[k,:] = centroid
+        t1 = perf_counter()
+        print('_update_centroids runtime: {}'.format(t1-t0))
 
     def _find_cluster_assignment(self):
         raise NotImplementedError("Please implement this method.")
