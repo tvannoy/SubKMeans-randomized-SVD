@@ -67,6 +67,9 @@ if __name__ == "__main__":
         label_to_num = defaultdict(partial(next, count(0)))
         labels = np.array([label_to_num[label] for label in labels])
         data_name = 'RNASeq'
+    elif dataset.lower() == 'random':
+        data, labels = make_classification(n_samples=20000, n_features=20000,
+            n_informative=20, n_classes=11, n_redundant=0, n_clusters_per_class=1)
     else:
         print('invalid dataset name')
         exit()

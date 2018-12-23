@@ -8,3 +8,4 @@ mkdir profile_results
 ./profiletest.py starlightcurves > profile_results/starlightcurves.txt
 ./profiletest.py drivface > profile_results/drivface.txt
 ./profiletest.py rnaseq > profile_results/rnaseq.txt
+./profiletest.py random > profile_results/random.txt
