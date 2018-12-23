@@ -10,6 +10,7 @@ from sklearn.metrics import normalized_mutual_info_score
 from sklearn.metrics import f1_score
 from sklearn import preprocessing
 from sklearn import datasets
+from sklearn.datasets import make_classification
 from time import gmtime, strftime, perf_counter
 from collections import defaultdict
 from itertools import count
