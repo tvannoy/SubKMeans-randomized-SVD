@@ -1,5 +1,6 @@
 import numpy as np
 import fbpca
+import multiprocessing as mp
 
 # calculate the pc projection matrix
 def calc_pc(dim, m):
@@ -26,16 +27,22 @@ def init_transform(dim, m=None):
         V, r = np.linalg.qr(V)
     return V
 
-# calculate the scatter matrix for the full dataset
-def calculate_scatter(data):
-    #Compute the mean vector
+# calculate scatter matrix as the inner product of the centered data matrix
+def calculate_scatter(data, num_processes=mp.cpu_count()):
+    # Compute the mean vector
     mean = np.mean(data, axis=0)
 
     # Compute centered data matrix
     centered_data = data - mean
 
-    #Computation of scatter plot
-    S = (centered_data).T @ (centered_data)
+    # split centered data matrix into num_processes sub-matrices of
+    # approximately equal size
+    subarrays = np.array_split(centered_data, num_processes, axis=1)
+
+    # split the inner product up among the processes in the pool, then
+    # concatenate the results back together
+    with mp.Pool(num_processes) as p:
+        S = np.concatenate(p.starmap(np.matmul, [(centered_data.T, B) for B in subarrays]), axis=1)
 
     return S
 

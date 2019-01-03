@@ -5,7 +5,7 @@ import utils
 class TestScatterMatrixComputation(unittest.TestCase):
     def test_random(self):
         # create data
-        data = np.random.rand(500)
+        data = np.random.rand(500, 300)
         mean = np.mean(data, axis=0)
 
         # calculate scatter matrix sequentially
@@ -14,11 +14,12 @@ class TestScatterMatrixComputation(unittest.TestCase):
         # calculate scatter matrix in parallel
         S2 = utils.calculate_scatter(data)
 
-        self.assertEqual(S1, S2)
+        # make sure all elements are the same
+        self.assertTrue((S1 == S2).all())
 
     def test_ones(self):
         # create data
-        data = np.ones(500)
+        data = np.ones([500, 300])
         mean = np.mean(data, axis=0)
 
         # calculate scatter matrix sequentially
@@ -27,7 +28,8 @@ class TestScatterMatrixComputation(unittest.TestCase):
         # calculate scatter matrix in parallel
         S2 = utils.calculate_scatter(data)
 
-        self.assertEqual(S1, S2)
+        # make sure all elements are the same
+        self.assertTrue((S1 == S2).all())
 
 
 if __name__ == '__main__':
