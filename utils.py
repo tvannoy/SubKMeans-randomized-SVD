@@ -35,6 +35,7 @@ def init_transform(dim, m=None):
 
 # calculate scatter matrix as the inner product of the centered data matrix
 def calculate_scatter(data, num_processes=mp.cpu_count()):
+    t0 = perf_counter()
     # Compute the mean vector
     mean = np.mean(data, axis=0)
 
@@ -54,7 +55,6 @@ def calculate_scatter(data, num_processes=mp.cpu_count()):
     print('\tcalculate_scatter runtime: {}'.format(t1-t0))
 
     return S
->>>>>>> parallel_scatter
 
 def sorted_eig(s, m=None):
     t0 = perf_counter()
