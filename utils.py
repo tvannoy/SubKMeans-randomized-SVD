@@ -42,6 +42,8 @@ def calculate_scatter(data, num_processes=mp.cpu_count()):
     # split the inner product up among the processes in the pool, then
     # concatenate the results back together
     with mp.Pool(num_processes) as p:
+        # TODO: due to limitations in serializing large objects, I need to
+        # use a shared memory model instead so the pool map doesn't error out
         S = np.concatenate(p.starmap(np.matmul, [(centered_data.T, B) for B in subarrays]), axis=1)
 
     return S

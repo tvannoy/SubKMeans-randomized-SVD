@@ -1,0 +1,45 @@
+import numpy as np
+import matplotlib.pyplot as plt
+from time import perf_counter
+
+import utils
+
+
+def calc_scatter_sequential(data):
+    mean = np.mean(data, axis=0)
+    centered_data = data - mean
+    S = centered_data.T @ centered_data
+    return S
+
+
+if __name__ == '__main__':
+    avg_runtimes_sequential = []
+    avg_ruintimes_parallel = []
+
+    dim_sizes = np.logspace(2, 4, 8, dtype=np.int)
+    for d in dim_sizes:
+        runtimes_sequential = []
+        runtimes_parallel = []
+
+        for i in range(5):
+            data = np.random.rand(5000, d)
+
+            t0 = perf_counter()
+            calc_scatter_sequential(data)
+            t1 = perf_counter()
+            runtimes_sequential.append(t1-t0)
+
+            t0 = perf_counter()
+            utils.calculate_scatter(data)
+            t1 = perf_counter()
+            runtimes_parallel.append(t1-t0)
+
+        avg_runtimes_sequential.append(np.average(runtimes_sequential))
+        avg_ruintimes_parallel.append(np.average(runtimes_parallel))
+
+    plt.semilogx(dim_sizes, avg_runtimes_sequential, label='sequential', marker='o')
+    plt.semilogx(dim_sizes, avg_ruintimes_parallel, label='parallel', marker='s')
+    plt.xlabel('No. of Dimensions')
+    plt.ylabel('Average Runtime [sec]')
+    plt.legend()
+    plt.show()
