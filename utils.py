@@ -1,6 +1,7 @@
 import numpy as np
 import fbpca
 from time import perf_counter
+import multiprocessing as mp
 
 # calculate the pc projection matrix
 def calc_pc(dim, m):
@@ -32,25 +33,28 @@ def init_transform(dim, m=None):
     print('\tinit_transform runtime: {}'.format(t1-t0))
     return V
 
-# calculate the scatter matrix for the full dataset
-def calculate_scatter(data):
-    t0 = perf_counter()
-
-    #Compute the mean vector
+# calculate scatter matrix as the inner product of the centered data matrix
+def calculate_scatter(data, num_processes=mp.cpu_count()):
+    # Compute the mean vector
     mean = np.mean(data, axis=0)
 
-    #Computation of scatter plot
-    s_d = (data - mean).T @ (data - mean)
+    # Compute centered data matrix
+    centered_data = data - mean
+
+    # split centered data matrix into num_processes sub-matrices of
+    # approximately equal size
+    subarrays = np.array_split(centered_data, num_processes, axis=1)
+
+    # split the inner product up among the processes in the pool, then
+    # concatenate the results back together
+    with mp.Pool(num_processes) as p:
+        S = np.concatenate(p.starmap(np.matmul, [(centered_data.T, B) for B in subarrays]), axis=1)
 
     t1 = perf_counter()
     print('\tcalculate_scatter runtime: {}'.format(t1-t0))
-    # d = len(data)
-    # if d == 0:
-    #     return [0]
-    # c = np.eye(d) - np.multiply(1/d, np.ones((d,d)))
-    # s_d = data.T @ c
-    # s_d = s_d @ data
-    return s_d
+
+    return S
+>>>>>>> parallel_scatter
 
 def sorted_eig(s, m=None):
     t0 = perf_counter()
