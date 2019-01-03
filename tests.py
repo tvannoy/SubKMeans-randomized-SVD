@@ -3,11 +3,22 @@ import numpy as np
 import utils
 
 class TestScatterMatrixComputation(unittest.TestCase):
-    # def test_random(self):
+    def test_random(self):
+        # create data
+        data = np.random.rand(500)
+        mean = np.mean(data, axis=0)
+
+        # calculate scatter matrix sequentially
+        S1 = (data - mean).T @ (data - mean)
+
+        # calculate scatter matrix in parallel
+        S2 = utils.calculate_scatter(data)
+
+        self.assertEqual(S1, S2)
 
     def test_ones(self):
         # create data
-        data = np.ones(10)
+        data = np.ones(500)
         mean = np.mean(data, axis=0)
 
         # calculate scatter matrix sequentially
