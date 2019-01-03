@@ -1,5 +1,5 @@
 import numpy as np
-import fbpca 
+import fbpca
 
 # calculate the pc projection matrix
 def calc_pc(dim, m):
@@ -31,16 +31,13 @@ def calculate_scatter(data):
     #Compute the mean vector
     mean = np.mean(data, axis=0)
 
-    #Computation of scatter plot
-    s_d = (data - mean).T @ (data - mean)
+    # Compute centered data matrix
+    centered_data = data - mean
 
-    # d = len(data)
-    # if d == 0:
-    #     return [0]
-    # c = np.eye(d) - np.multiply(1/d, np.ones((d,d)))
-    # s_d = data.T @ c
-    # s_d = s_d @ data
-    return s_d
+    #Computation of scatter plot
+    S = (centered_data).T @ (centered_data)
+
+    return S
 
 def sorted_eig(s, m=None):
     # eigendecomposition -> this is where we will sub in randomized svd
