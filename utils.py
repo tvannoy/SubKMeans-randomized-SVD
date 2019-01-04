@@ -47,10 +47,16 @@ def calculate_scatter(data, num_processes=mp.cpu_count()):
     # created a shared memory RawArray for the scatter matrix
     scatter = mp.RawArray(ctypes.c_double, shape[1]*shape[1])
 
+    # NOTE: I'm using a module-level variable for the centered data matrix instead of
+    # a shared memory RawArray since Unix fork() is copy-on-write and the matrix is
+    # never modified, so it should never be copied. I could also use a shared
+    # memory RawArray instead, which would probably only incur negligible overhead.
     global centered_data
     centered_data = data - mean
 
-    # split the inner product up among the processes in the pool
+    # split the inner product up by columns among the processes in the pool
+    # NOTE: we could split across rows instead if we were dealing with large
+    # numbers of instances but small dimensionality
     columns = np.array_split(np.arange(shape[1]), num_processes)
     with mp.Pool(processes=num_processes, initializer=_init_calculate_scatter_worker, initargs=(scatter, shape)) as pool:
         pool.map(_calculate_scatter_worker, columns)
