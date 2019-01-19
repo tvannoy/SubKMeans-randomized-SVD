@@ -75,10 +75,10 @@ if __name__ == "__main__":
     # data = oliveoil[:,1:]
 
     # load in the StarLightCurves dataset
-    # starlight = np.genfromtxt('datasets/StarLightCurves/StarLightCurves_combined', delimiter=',')
-    # data_name = 'StarLightCurves'
-    # labels = starlight[:,0] - 1
-    # data = starlight[:,1:]
+    starlight = np.genfromtxt('datasets/StarLightCurves/StarLightCurves_combined', delimiter=',')
+    data_name = 'StarLightCurves'
+    labels = starlight[:,0] - 1
+    data = starlight[:,1:]
 
     # load in the Symbols dataset
     # symbols = np.genfromtxt('datasets/Symbols/Symbols_combined', delimiter=',')
@@ -87,11 +87,11 @@ if __name__ == "__main__":
     # data = symbols[:,1:]
 
     # load in the DrivFace dataset
-    matfile = scipy.io.loadmat('datasets/DrivFace/DrivFace.mat') # load in matlab data file
-    drivFace = matfile['drivFaceD'][0,0] # grab the struct
-    data = drivFace['data']
-    labels = drivFace['nlab'][:,0]
-    data_name = 'drivFace'
+    # matfile = scipy.io.loadmat('datasets/DrivFace/DrivFace.mat') # load in matlab data file
+    # drivFace = matfile['drivFaceD'][0,0] # grab the struct
+    # data = drivFace['data']
+    # labels = drivFace['nlab'][:,0]
+    # data_name = 'drivFace'
 
     # load in the RNASeq dataset
     # data = np.genfromtxt('datasets/TCGA-PANCAN-HiSeq-801x20531/data.csv', delimiter=',', skip_header=True)
@@ -103,8 +103,8 @@ if __name__ == "__main__":
     # labels = np.array([label_to_num[label] for label in labels])
     # data_name = 'RNASeq'
 
-    algorithms = (cluster.SubKmeansRand, cluster.SubKmeans, cluster.PcaKmeans, cluster.LdaKmeans)
-    # algorithms = (cluster.SubKmeans,)
+    # algorithms = (cluster.SubKmeansRand, cluster.SubKmeans, cluster.PcaKmeans, cluster.LdaKmeans)
+    algorithms = (cluster.SubKmeans, cluster.SubKmeansRand)
     keys = [alg.__name__ for alg in algorithms]
     results = dict.fromkeys(keys)
 
@@ -115,15 +115,15 @@ if __name__ == "__main__":
 
     print(results)
     # save results
-    results_dir = os.path.join(os.getcwd(), "Results")
-    if not os.path.exists(results_dir):
-        os.mkdir(results_dir)
-
-    t = strftime("%H_%M_%S", gmtime())
-    filename = os.path.join(results_dir, "clustering_" + data_name + "_" + t + ".csv")
-    with open(filename, 'w') as f:
-        nmi, runtime = zip(*results.values())
-        writer = csv.writer(f)
-        writer.writerow(results.keys())
-        writer.writerow(nmi)
-        writer.writerow(runtime)
+    # results_dir = os.path.join(os.getcwd(), "Results")
+    # if not os.path.exists(results_dir):
+    #     os.mkdir(results_dir)
+    #
+    # t = strftime("%H_%M_%S", gmtime())
+    # filename = os.path.join(results_dir, "clustering_" + data_name + "_" + t + ".csv")
+    # with open(filename, 'w') as f:
+    #     nmi, runtime = zip(*results.values())
+    #     writer = csv.writer(f)
+    #     writer.writerow(results.keys())
+    #     writer.writerow(nmi)
+    #     writer.writerow(runtime)

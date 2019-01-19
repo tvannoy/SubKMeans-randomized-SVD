@@ -3,6 +3,7 @@ import utils
 from collections import defaultdict
 from sklearn.decomposition import PCA
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
+import multiprocessing as mp
 from kmeans import Kmeans
 
 
@@ -86,22 +87,51 @@ class SubKmeansRand(Kmeans):
         self.transform = utils.init_transform(data.shape[1], m=self.m) # init transformation matrix
         self.s_d = utils.calculate_scatter(self.data)                  # compute scatter matrix S_D
         self.s_i = []                                                  # scatter matrix S_i
-    
+
+    mapped_data = np.array([])
+    mapped_centroids = np.array([])
     def _find_cluster_assignment(self):
         # re initialize clusters, as we are creating new assignments
         self.assignments = defaultdict(list)
 
+
         # map data to cluster space
+        global mapped_data
         mapped_data = (self.transform.T @ self.data.T).T # (i by m) i being the datapoints
 
         # map centroids to cluster space
+        global mapped_centroids
         mapped_centroids = (self.transform.T @ self.centroids.T).T  # (k by m) k being number of centroids
 
         # compute distances to centroids
-        for i in range(len(self.data)):
-            dist = np.linalg.norm(mapped_centroids - mapped_data[i, :], axis=1)
+        rows = np.array_split(np.arange(mapped_data.shape[0]), mp.cpu_count())
+        lock = mp.Lock()
+        with mp.Pool(initializer=self._init_lock, initargs=(lock,)) as pool:
+            assignments = pool.map(self._compute_distances, rows)
+
+        for dictionary in assignments:
+            for k,v in dictionary.items():
+                self.assignments[k].extend(v)
+
+
+        # print(self.assignments)
+        # for i in range(len(self.data)):
+        #     dist = np.linalg.norm(mapped_centroids - mapped_data[i, :], axis=1)
+        #     cluster_assignment = np.argmin(dist)
+        #     self.assignments[cluster_assignment].append(self.data[i,:])
+
+    def _compute_distances(self, rows):
+        assignments = defaultdict(list)
+        for row in rows:
+            dist = np.linalg.norm(mapped_centroids - mapped_data[row, :], axis=1)
             cluster_assignment = np.argmin(dist)
-            self.assignments[cluster_assignment].append(self.data[i,:])
+            assignments[cluster_assignment].append(self.data[row,:])
+
+        return assignments
+
+    def _init_lock(self, l):
+        global lock
+        lock = l
 
     def _update_transformation(self):
         # compute scatter matrix
@@ -121,7 +151,7 @@ class SubKmeansRand(Kmeans):
         scatter = self.s_i - self.s_d
         cost = np.matrix.trace(self.transform.T @ scatter @ self.transform) + \
                np.matrix.trace(self.transform.T @ self.s_d @ self.transform)
-        return cost 
+        return cost
 
 class PcaKmeans(Kmeans):
     def __init__(self, k, data):

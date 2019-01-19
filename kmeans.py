@@ -10,6 +10,8 @@ class Kmeans(object):
     def __init__(self, k, data):
         self.k = k                            # number of clusters
         self.data = data                      # dataset
+        # TODO: instead of assigning the actual points to the assignments dict,
+        # we could save memory space by assigning the data point indices instead
         self.assignments = defaultdict(list)  # track cluster assignments with dict. cluster num is key
 
         # randomly assign points to clusters initially.
