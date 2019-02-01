@@ -59,7 +59,7 @@ def cluster_test(algorithm, data, labels):
     times = [times[i] for i in args[0:20]]
     # print(results)
 
-    return (np.median(results), np.median(times))
+    return (np.median(results), np.median(times), np.std(times))
 
 if __name__ == "__main__":
     # load in the Plane dataset
@@ -122,8 +122,9 @@ if __name__ == "__main__":
     t = strftime("%H_%M_%S", gmtime())
     filename = os.path.join(results_dir, "clustering_" + data_name + "_" + t + ".csv")
     with open(filename, 'w') as f:
-        nmi, runtime = zip(*results.values())
+        nmi, runtime, stdev = zip(*results.values())
         writer = csv.writer(f)
         writer.writerow(results.keys())
         writer.writerow(nmi)
         writer.writerow(runtime)
+        writer.writerow(stdev)

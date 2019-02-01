@@ -37,7 +37,8 @@ def data_size_test(algorithm, sets):
             loc_nmi.append(normalized_mutual_info_score(sorted(labels), sorted(cur_labels)))
 
         median_runtime = np.median(runtimes)
-        median_runtimes.append(median_runtime)
+        runtime_dev = np.std(runtimes)
+        median_runtimes.append((median_runtime, runtime_dev))
         nmi.append(np.mean(loc_nmi))
         # print("median runtime: {}".format(median_runtime))
 
@@ -56,9 +57,8 @@ if __name__ == '__main__':
     sets = []
     for d in dim_sizes:
         # create synthetic dataset
-        # data, labels = make_classification(n_samples=1000, n_features=d,
-        #     n_informative=10, n_classes=3, n_redundant=0, n_clusters_per_class=1)
-        data, labels = make_blobs(n_samples=1000, n_features=d, centers=3, cluster_std=1.0, center_box=(-10.0, 10.0), shuffle=True, random_state=None)
+        data, labels = make_classification(n_samples=1000, n_features=d,
+            n_informative=10, n_classes=3, n_redundant=0, n_clusters_per_class=1)
         data = scale(data) 
         sets.append((data,labels))
 
@@ -76,7 +76,7 @@ if __name__ == '__main__':
         filename = os.path.join(results_dir, "dim_results_" + alg.__name__ + "_" + t + ".csv")
         with open(filename, 'w') as f:
             writer = csv.writer(f)
-            writer.writerow(['dim_size', 'median_runtime', 'NMI'])
+            writer.writerow(['dim_size', 'median_runtime', 'StDev', 'NMI'])
             for size, runtime, nmi in zip(dim_sizes, median_runtimes, nmi):
-                writer.writerow([size, runtime, nmi])
+                writer.writerow([size, runtime[0], runtime[1], nmi])
 

@@ -35,7 +35,8 @@ def data_size_test(algorithm, sets):
             loc_nmi.append(normalized_mutual_info_score(labels, cur_labels))
 
         median_runtime = np.median(runtimes)
-        median_runtimes.append(median_runtime)
+        runtime_dev = np.std(runtimes)
+        median_runtimes.append((median_runtime, runtime_dev))
         nmi.append(np.mean(loc_nmi))
         print("\nmedian runtime: {}\n".format(median_runtime))
 
@@ -73,7 +74,7 @@ if __name__ == '__main__':
         filename = os.path.join(results_dir, "runtime_results_" + alg.__name__ + "_" +  t + ".csv")
         with open(filename, 'w') as f:
             writer = csv.writer(f)
-            writer.writerow(['sample_size', 'median_runtime', 'NMI'])
+            writer.writerow(['sample_size', 'median_runtime', 'StDev', 'NMI'])
             for size, runtime, nmi in zip(sample_sizes, median_runtimes, nmi):
-                writer.writerow([size, runtime, nmi])
+                writer.writerow([size, runtime[0], runtime[1], nmi])
 
