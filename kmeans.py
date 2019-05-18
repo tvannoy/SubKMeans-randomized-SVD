@@ -34,7 +34,6 @@ class Kmeans(object):
 
             self._find_cluster_assignment()
             self._update_centroids()
-            self._update_transformation()
 
             cur_labels = []
             for k,v in self.assignments.items():
@@ -43,6 +42,12 @@ class Kmeans(object):
             same = compare(prev_labels, cur_labels)
             nmi = normalized_mutual_info_score(prev_labels, cur_labels) #, average_method='arithmetic')
             n += 1
+
+            # don't update transformation matrix if we have converged
+            # this should help with visualization
+            if not same:
+                self._update_transformation()
+
         print("NMI: {}, n_iter: {}".format(nmi, n))
 
 

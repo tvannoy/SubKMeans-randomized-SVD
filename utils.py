@@ -30,6 +30,17 @@ def init_transform(dim, m=None):
 
     return V
 
+# calculate the scatter matrix for the full dataset
+def calculate_scatter_sequential(data):
+    #Compute the mean vector
+    mean = np.mean(data, axis=0)
+
+    #Computation of scatter plot
+    s_d = (data - mean).T @ (data - mean)
+
+    return s_d
+
+
 # calculate scatter matrix as the inner product of the centered data matrix with itself
 centered_data = np.array([])
 def calculate_scatter(data, num_processes=mp.cpu_count()):

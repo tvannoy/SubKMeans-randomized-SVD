@@ -6,13 +6,13 @@ import csv
 import os
 from sklearn.datasets import make_classification
 from sklearn.metrics import normalized_mutual_info_score
-from sklearn.preprocessing import scale 
+from sklearn.preprocessing import scale
 from time import perf_counter, strftime, gmtime
 
 import cluster
 
 def data_size_test(algorithm, sets):
-    median_runtimes = []
+    avg_runtimes = []
     nmi = []
     for data, labels in sets:
         print("Datasize: {}".format(len(data)))
@@ -34,18 +34,20 @@ def data_size_test(algorithm, sets):
                 cur_labels += list(k * np.ones(len(v)))
             loc_nmi.append(normalized_mutual_info_score(labels, cur_labels))
 
-        median_runtime = np.median(runtimes)
-        median_runtimes.append(median_runtime)
+        avg_runtime = np.median(runtimes)
+        runtime_dev = np.std(runtimes)
+        avg_runtimes.append((avg_runtime, runtime_dev))
         nmi.append(np.mean(loc_nmi))
-        print("\nmedian runtime: {}\n".format(median_runtime))
+        print("\naverage runtime: {}\n".format(avg_runtime))
 
-    print("median runtimes: {}".format(median_runtimes))
+    print("average runtimes: {}".format(avg_runtimes))
     print("NMI: {}".format(nmi))
 
-    return (sample_sizes, median_runtimes, nmi)
+    return (sample_sizes, avg_runtimes, nmi)
 
 if __name__ == '__main__':
-    algorithms = (cluster.SubKmeansRand, cluster.SubKmeans, cluster.PcaKmeans, cluster.LdaKmeans)
+    algorithms = (cluster.SubKmeansRand, cluster.SubKmeansRandSequential,
+        cluster.SubKmeans, cluster.PcaKmeans, cluster.LdaKmeans)
 
     keys = [alg.__name__ for alg in algorithms]
     results = dict.fromkeys(keys)
@@ -61,8 +63,8 @@ if __name__ == '__main__':
 
     for alg in algorithms:
         print("running data size test on {}".format(alg.__name__))
-        sample_sizes, median_runtimes, nmi = data_size_test(alg, sets)
-        results[alg.__name__] = (sample_sizes, median_runtimes, nmi)
+        sample_sizes, avg_runtimes, nmi = data_size_test(alg, sets)
+        results[alg.__name__] = (sample_sizes, avg_runtimes, nmi)
 
         # save results
         results_dir = os.path.join(os.getcwd(), "Results")
@@ -73,7 +75,6 @@ if __name__ == '__main__':
         filename = os.path.join(results_dir, "runtime_results_" + alg.__name__ + "_" +  t + ".csv")
         with open(filename, 'w') as f:
             writer = csv.writer(f)
-            writer.writerow(['sample_size', 'median_runtime', 'NMI'])
-            for size, runtime, nmi in zip(sample_sizes, median_runtimes, nmi):
-                writer.writerow([size, runtime, nmi])
-
+            writer.writerow(['sample_size', 'avg_runtime', 'StDev', 'NMI'])
+            for size, runtime, nmi in zip(sample_sizes, avg_runtimes, nmi):
+                writer.writerow([size, runtime[0], runtime[1], nmi])
