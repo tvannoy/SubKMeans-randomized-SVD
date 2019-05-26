@@ -59,7 +59,7 @@ def cluster_test(algorithm, data, labels):
     times = [times[i] for i in args[0:20]]
     # print(results)
 
-    return (np.median(results), np.median(times), np.std(times))
+    return (np.median(results), np.mean(times), np.std(times))
 
 if __name__ == "__main__":
     # load in the Plane dataset
